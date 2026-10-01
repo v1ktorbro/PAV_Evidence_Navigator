@@ -14,6 +14,8 @@ import type {
 import AnalysisPanel from "../../components/AnalysisPanel/AnalysisPanel";
 import EvidenceFilters from "../../components/EvidenceFilters/EvidenceFilters";
 import EvidenceTable from "../../components/EvidenceTable/EvidenceTable";
+import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
+import Tooltip from "../../components/ui/Tooltip/Tooltip";
 import scss from "./evidenceNavigator.module.scss";
 
 const INITIAL_FILTERS: EvidenceFiltersValue = {
@@ -22,6 +24,12 @@ const INITIAL_FILTERS: EvidenceFiltersValue = {
   maxSalinity: "",
   comparableOnly: false,
 };
+const COMPARABILITY_DESCRIPTIONS = [
+  undefined,
+  "Условия опыта соответствуют выбранным параметрам и его можно использовать для прямого сравнения.",
+  "Опыт близок к выбранным условиям, но имеет отличия или неполные данные. Учитывайте это при выводах.",
+  "Условия опыта не соответствуют выбранным параметрам либо отсутствуют критически важные данные.",
+];
 const DEFAULT_QUESTION =
   "Какие результаты по карбонатному керну при 70–90 °C можно корректно сопоставить и каких условий не хватает?";
 
@@ -170,10 +178,29 @@ const EvidenceNavigator = () => {
               [evidence.summary.comparable, "сопоставимы"],
               [evidence.summary.limited, "с ограничениями"],
               [evidence.summary.not_comparable, "не сопоставимы"],
-            ].map(([value, label]) => (
+            ].map(([value, label], index) => (
               <div key={label as string}>
                 <strong>{value}</strong>
-                <span>{label}</span>
+                <div className={scss.statLabel}>
+                  <span>{label}</span>
+                  {COMPARABILITY_DESCRIPTIONS[index] && (
+                    <Tooltip
+                      matchTriggerParentWidth={false}
+                      contentProps={{ side: "top", sideOffset: 8 }}
+                      target={
+                        <button
+                          className={scss.infoButton}
+                          type="button"
+                          aria-label={`Пояснение: ${label}`}
+                        >
+                          <IconRenderer icon="question" />
+                        </button>
+                      }
+                    >
+                      {COMPARABILITY_DESCRIPTIONS[index]}
+                    </Tooltip>
+                  )}
+                </div>
               </div>
             ))}
           </section>

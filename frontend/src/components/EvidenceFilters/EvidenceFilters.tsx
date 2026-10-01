@@ -2,6 +2,8 @@ import type { ChangeEvent, FC } from "react";
 
 import type { EvidenceFiltersValue } from "../../assets/types/evidence";
 import Button from "../ui/Button/Button";
+import IconRenderer from "../ui/IconRenderer/IconRenderer";
+import Tooltip from "../ui/Tooltip/Tooltip";
 import scss from "./evidenceFilters.module.scss";
 
 interface IEvidenceFilters {
@@ -10,6 +12,29 @@ interface IEvidenceFilters {
   onSubmit: () => void;
   isLoading: boolean;
 }
+
+interface IInfoTooltip {
+  label: string;
+  children: string;
+}
+
+const InfoTooltip: FC<IInfoTooltip> = ({ label, children }) => (
+  <Tooltip
+    matchTriggerParentWidth={false}
+    contentProps={{ side: "top", sideOffset: 8 }}
+    target={
+      <button
+        className={scss.infoButton}
+        type="button"
+        aria-label={`Пояснение: ${label}`}
+      >
+        <IconRenderer icon="question" />
+      </button>
+    }
+  >
+    {children}
+  </Tooltip>
+);
 
 const EvidenceFilters: FC<IEvidenceFilters> = ({
   value,
@@ -29,45 +54,68 @@ const EvidenceFilters: FC<IEvidenceFilters> = ({
 
   return (
     <section className={scss.root} aria-label="Фильтры опытов">
-      <label>
-        Температура от, °C
+      <div className={scss.field}>
+        <div className={scss.labelRow}>
+          <label htmlFor="minTemperature">Температура от, °C</label>
+          <InfoTooltip label="Температура от">
+            Исключает опыты, в которых температура ниже указанного значения.
+          </InfoTooltip>
+        </div>
         <input
+          id="minTemperature"
           name="minTemperature"
           type="number"
           value={value.minTemperature}
           onChange={handleValueChange}
           placeholder="70"
         />
-      </label>
-      <label>
-        Температура до, °C
+      </div>
+      <div className={scss.field}>
+        <div className={scss.labelRow}>
+          <label htmlFor="maxTemperature">Температура до, °C</label>
+          <InfoTooltip label="Температура до">
+            Исключает опыты, в которых температура выше указанного значения.
+          </InfoTooltip>
+        </div>
         <input
+          id="maxTemperature"
           name="maxTemperature"
           type="number"
           value={value.maxTemperature}
           onChange={handleValueChange}
           placeholder="90"
         />
-      </label>
-      <label>
-        Минерализация до, г/л
+      </div>
+      <div className={scss.field}>
+        <div className={scss.labelRow}>
+          <label htmlFor="maxSalinity">Минерализация до, г/л</label>
+          <InfoTooltip label="Минерализация до">
+            Оставляет опыты с минерализацией не выше указанного значения.
+          </InfoTooltip>
+        </div>
         <input
+          id="maxSalinity"
           name="maxSalinity"
           type="number"
           value={value.maxSalinity}
           onChange={handleValueChange}
           placeholder="60"
         />
-      </label>
-      <label className={scss.checkbox}>
+      </div>
+      <div className={scss.checkbox}>
         <input
+          id="comparableOnly"
           name="comparableOnly"
           type="checkbox"
           checked={value.comparableOnly}
           onChange={handleValueChange}
         />
-        Только сопоставимые
-      </label>
+        <label htmlFor="comparableOnly">Только сопоставимые</label>
+        <InfoTooltip label="Только сопоставимые">
+          Оставляет только опыты без ограничений сопоставимости; записи с
+          ограничениями и несопоставимые скрываются.
+        </InfoTooltip>
+      </div>
       <Button onClick={onSubmit} disabled={isLoading}>
         {isLoading ? "Загрузка…" : "Применить фильтр"}
       </Button>

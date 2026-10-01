@@ -104,9 +104,30 @@ h2 {
   color: var(--color-accent);
 }
 
-.stats span {
+.statLabel {
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.statLabel span {
   color: var(--color-text-muted);
   font-size: 0.8125rem;
+}
+
+.infoButton {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 0.9375rem;
+  height: 0.9375rem;
+  padding: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 0;
+}
+
+.infoButton:hover {
+  color: var(--color-accent);
 }
 
 .sectionHeading {
