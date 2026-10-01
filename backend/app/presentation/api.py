@@ -5,7 +5,10 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.app.application.evidence_service import EvidenceService
+from backend.app.application.evidence_service import (
+    EvidenceNotFoundError,
+    EvidenceService,
+)
 from backend.app.application.synapse_service import SynapseService
 from backend.app.config import settings
 from backend.app.infrastructure.evidence_repository import JsonEvidenceRepository
@@ -33,6 +36,14 @@ def health() -> dict[str, Any]:
 @router.get("/evidence")
 def evidence(min_temperature: float | None = None, max_temperature: float | None = None, max_salinity: float | None = None, rock_type: str | None = None, comparable_only: bool = False) -> dict[str, Any]:
     return evidence_service.list_evidence(min_temperature=min_temperature, max_temperature=max_temperature, max_salinity=max_salinity, rock_type=rock_type, comparable_only=comparable_only)
+
+
+@router.get("/evidence/{evidence_id}")
+def evidence_by_id(evidence_id: str) -> dict[str, object]:
+    try:
+        return evidence_service.get_evidence(evidence_id)
+    except EvidenceNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="Опыт не найден.") from exc
 
 
 @router.post("/analysis")

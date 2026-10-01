@@ -23,3 +23,14 @@ def test_analysis_contains_source_fragments_in_synapse_prompt():
     assert response.status_code == 200
     assert "LAB-001" in response.json()["synapse_prompt"]
     assert "стр. 14, табл. 4" in response.json()["synapse_prompt"]
+
+
+def test_evidence_by_id_returns_source_fragment():
+    response = client.get("/api/evidence/LAB-001")
+    assert response.status_code == 200
+    assert response.json()["source"]["location"] == "стр. 14, табл. 4"
+
+
+def test_unknown_evidence_returns_not_found():
+    response = client.get("/api/evidence/UNKNOWN")
+    assert response.status_code == 404

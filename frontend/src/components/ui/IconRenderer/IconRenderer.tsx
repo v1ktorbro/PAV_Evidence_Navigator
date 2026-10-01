@@ -6,13 +6,15 @@ import {
 } from "react";
 
 import QuestionIcon from "./icons/Question";
+import ExternalLinkIcon from "./icons/ExternalLink";
 
-export type IIconRendererTypes = "question";
+export type IIconRendererTypes = "externalLink" | "question";
 
 export const ICONS_ENUM: Record<
   IIconRendererTypes,
   ComponentType<{ className?: string; style: CSSProperties }>
 > = {
+  externalLink: ExternalLinkIcon,
   question: QuestionIcon,
 } as const;
 

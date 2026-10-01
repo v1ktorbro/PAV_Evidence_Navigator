@@ -42,6 +42,33 @@ input {
   accent-color: var(--color-accent);
 }
 
+.sourceContent {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.sourceLink {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.sourceLink:hover {
+  color: var(--color-accent);
+}
+
+.sourceLink:focus-visible {
+  outline: 0.1875rem solid var(--color-accent);
+  outline-offset: 0.125rem;
+}
+
 .badge {
   display: inline-block;
   padding: 0.25rem 0.5rem;

@@ -1,6 +1,7 @@
 import type {
   AnalysisResponse,
   EvidenceFiltersValue,
+  EvidenceItem,
   EvidenceResponse,
   SynapseConfig,
   SynapseProject,
@@ -55,6 +56,9 @@ export const getEvidence = (filters: EvidenceFiltersValue) => {
   const suffix = query.size ? `?${query}` : "";
   return request<EvidenceResponse>(`/api/evidence${suffix}`);
 };
+
+export const getEvidenceItem = (evidenceId: string) =>
+  request<EvidenceItem>(`/api/evidence/${encodeURIComponent(evidenceId)}`);
 
 export const getSynapseConfig = () =>
   request<SynapseConfig>("/api/synapse/config");

@@ -16,7 +16,12 @@ export interface EvidenceItem {
   result: { label: string; value: number; unit: string };
   comparability: { status: ComparabilityStatus; reason: string };
   missing_fields: string[];
-  source: { document: string; location: string; excerpt: string };
+  source: {
+    document: string;
+    location: string;
+    excerpt: string;
+    url?: string;
+  };
 }
 
 export interface EvidenceSummary {

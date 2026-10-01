@@ -4,6 +4,7 @@ import type {
   ComparabilityStatus,
   EvidenceItem,
 } from "../../assets/types/evidence";
+import IconRenderer from "../ui/IconRenderer/IconRenderer";
 import scss from "./evidenceTable.module.scss";
 
 interface IEvidenceTable {
@@ -78,8 +79,24 @@ const EvidenceTable: FC<IEvidenceTable> = ({
               <small>{item.comparability.reason}</small>
             </td>
             <td>
-              <strong>{item.source.document}</strong>
-              <small>{item.source.location}</small>
+              <div className={scss.sourceContent}>
+                <div>
+                  <strong>{item.source.document}</strong>
+                  <small>{item.source.location}</small>
+                </div>
+                {item.source.url && (
+                  <a
+                    className={scss.sourceLink}
+                    href={item.source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`Открыть фрагмент: ${item.source.document}, ${item.source.location}`}
+                    title="Открыть фрагмент источника в новой вкладке"
+                  >
+                    <IconRenderer icon="externalLink" />
+                  </a>
+                )}
+              </div>
             </td>
           </tr>
         ))}
