@@ -1,0 +1,4 @@
+interface:
+  display_name: PAV Frontend Feature
+  short_description: Add an end-to-end frontend capability
+  default_prompt: Add a user-facing feature to the PAV frontend.

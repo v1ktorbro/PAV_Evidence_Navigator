@@ -4,7 +4,7 @@ from typing import Any
 
 import httpx
 
-from app.config import Settings
+from backend.app.config import Settings
 
 
 class SynapseError(RuntimeError):
@@ -45,16 +45,7 @@ class SynapseClient:
         return response
 
     def create_project(self, prompt: str) -> dict[str, Any]:
-        response = self._request(
-            "POST",
-            "/api/projects",
-            json={
-                "user_prompt": prompt,
-                "workflow_id": self.config.synapse_workflow_id,
-                "approval_mode": self.config.synapse_approval_mode or "human",
-            },
-        )
-        return response.json()
+        return self._request("POST", "/api/projects", json={"user_prompt": prompt, "workflow_id": self.config.synapse_workflow_id, "approval_mode": self.config.synapse_approval_mode or "human"}).json()
 
     def get_project(self, project_id: str) -> dict[str, Any]:
         return self._request("GET", f"/api/projects/{project_id}").json()
@@ -63,16 +54,3 @@ class SynapseClient:
         base = normalize_url(self.config.synapse_ui_url) or self.base_url
         return f"{base}/monitor/{project_id}" if base else ""
 
-
-def public_project(project: dict[str, Any], client: SynapseClient) -> dict[str, Any]:
-    pending = project.get("pending_approvals") or []
-    result = project.get("final_output") or project.get("result") or project.get("summary") or ""
-    return {
-        "project_id": str(project.get("project_id") or project.get("id") or ""),
-        "status": project.get("status") or "started",
-        "phase": project.get("current_phase") or "",
-        "title": project.get("title") or "Исследование ПАВ",
-        "awaiting_approval": bool(pending),
-        "result_preview": str(result)[:1200],
-        "synapse_url": client.project_url(str(project.get("project_id") or project.get("id") or "")),
-    }

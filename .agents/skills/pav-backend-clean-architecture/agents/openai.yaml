@@ -1,0 +1,4 @@
+interface:
+  display_name: PAV Backend Clean Architecture
+  short_description: FastAPI Clean Architecture conventions
+  default_prompt: Implement a backend change following PAV Clean Architecture.

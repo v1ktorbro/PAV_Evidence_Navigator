@@ -1,0 +1,6 @@
+.root { display: grid; gap: 1rem; padding: 1.5rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-panel); }
+h2 { font-size: 1.5rem; }
+.eyebrow { color: var(--color-accent); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+textarea { width: 100%; resize: vertical; padding: 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); }
+.hint { color: var(--color-text-muted); font-size: 0.875rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }

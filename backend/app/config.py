@@ -6,9 +6,8 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
-ROOT = Path(__file__).resolve().parent.parent
-DATA_FILE = ROOT / "data" / "evidence.json"
+ROOT = Path(__file__).resolve().parents[2]
+DATA_FILE = ROOT / "backend" / "data" / "evidence.json"
 
 
 class Settings(BaseSettings):

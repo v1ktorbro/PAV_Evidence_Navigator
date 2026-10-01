@@ -17,3 +17,8 @@ env/
 *.swp
 .DS_Store
 Thumbs.db
+
+# Frontend artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local

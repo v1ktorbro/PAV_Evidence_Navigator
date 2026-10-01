@@ -1,7 +1,7 @@
 name: pav-evidence-navigator
 
 services:
-  navigator:
+  backend:
     build: .
     image: pav-evidence-navigator:0.1
     container_name: pav-evidence-navigator
@@ -15,5 +15,5 @@ services:
         required: false
     volumes:
       - type: bind
-        source: ./data
-        target: /app/data
+        source: ./backend/data
+        target: /service/backend/data

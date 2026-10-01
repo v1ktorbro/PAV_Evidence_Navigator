@@ -1,26 +1,10 @@
 from __future__ import annotations
 
-import json
 from collections import Counter
-from pathlib import Path
 from typing import Any
 
-from app.config import DATA_FILE
 
-
-def load_evidence(path: Path = DATA_FILE) -> list[dict[str, Any]]:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def filter_evidence(
-    rows: list[dict[str, Any]],
-    *,
-    min_temperature: float | None = None,
-    max_temperature: float | None = None,
-    max_salinity: float | None = None,
-    rock_type: str | None = None,
-    comparable_only: bool = False,
-) -> list[dict[str, Any]]:
+def filter_evidence(rows: list[dict[str, Any]], *, min_temperature: float | None = None, max_temperature: float | None = None, max_salinity: float | None = None, rock_type: str | None = None, comparable_only: bool = False) -> list[dict[str, Any]]:
     result = []
     for row in rows:
         conditions = row["conditions"]
@@ -49,19 +33,13 @@ def explain_selection(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "limited": statuses["limited"],
         "not_comparable": statuses["not_comparable"],
         "missing_fields": missing,
-        "warning": (
-            "Стенд демонстрационный: записи синтетические и не являются инженерной рекомендацией. "
-            "Перед применением рецептуры требуется проверка инженером и первичных документов."
-        ),
+        "warning": "Демонстрационные записи синтетические и не являются инженерной рекомендацией. Перед применением рецептуры требуется проверка инженером и первичных документов.",
     }
 
 
 def brief_for_synapse(question: str, selected: list[dict[str, Any]]) -> str:
     evidence = "\n".join(
-        f"- {row['id']}: {row['formulation']['name']}; {row['conditions']['temperature_c']} °C; "
-        f"{row['conditions']['salinity_g_l']} г/л; {row['conditions']['rock_type']}; "
-        f"результат: {row['result']['label']} = {row['result']['value']} {row['result']['unit']}; "
-        f"источник: {row['source']['document']}, {row['source']['location']}."
+        f"- {row['id']}: {row['formulation']['name']}; {row['conditions']['temperature_c']} °C; {row['conditions']['salinity_g_l']} г/л; {row['conditions']['rock_type']}; результат: {row['result']['label']} = {row['result']['value']} {row['result']['unit']}; источник: {row['source']['document']}, {row['source']['location']}."
         for row in selected
     )
     return f"""Ты инженер-эксперт по химическим методам увеличения нефтеотдачи (EOR).
@@ -76,6 +54,6 @@ def brief_for_synapse(question: str, selected: list[dict[str, Any]]) -> str:
 1. Не выбирай рецептуру для промышленного внедрения и не обещай прирост добычи.
 2. Раздели подтверждённые факты, ограниченно сопоставимые результаты и пробелы данных.
 3. Любой числовой вывод сопровождай идентификатором опыта и ссылкой на фрагмент источника.
-4. Сформируй короткое инженерное досье: таблица сравнений, ограничения и 3 вопроса для эксперта.
+4. Сформируй краткое инженерное досье: таблица сравнений, ограничения и 3 вопроса для эксперта.
 5. Если сведений не хватает, прямо скажи «недостаточно данных».
 """

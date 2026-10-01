@@ -1,0 +1,4 @@
+interface:
+  display_name: PAV Frontend Core
+  short_description: Conventions for the React frontend
+  default_prompt: Implement a frontend change using the PAV React conventions.

@@ -1,19 +1,26 @@
 # ПАВ Evidence Navigator
 
-Демонстрационный стенд для проверки лабораторных доказательств по ПАВ в EOR. Он не выбирает рецептуру для закачки и не заменяет инженера: задача стенда — показать условия опыта, результат, пробелы данных и точный фрагмент источника.
+Монорепозиторий с независимыми frontend и backend для работы с демонстрационным корпусом лабораторных опытов ПАВ. Данные синтетические: приложение помогает сопоставить источники и ограничения, но не выбирает рецептуру для промышленного внедрения.
+
+## Структура
+
+```text
+backend/   FastAPI API, Clean Architecture и корпус данных
+frontend/  React 18 + TypeScript + Vite + SCSS Modules
+.agents/   локальные skills и соглашения для дальнейшей разработки
+```
+
+Backend сохраняет REST-контракт на `/api`: `health`, `evidence`, `analysis` и интеграцию с Synapse. Frontend обращается к нему через Vite proxy в разработке либо через `VITE_API_BASE_URL` в другом окружении.
 
 ## Запуск
 
-```powershell
-cd C:\Users\vitya\Desktop\PAV_Evidence_Navigator
-wsl
-docker compose up -d --build
-```
+1. Запустите backend: `docker compose up --build backend`.
+2. В отдельном терминале перейдите в `frontend`, выполните `npm install`, затем `npm run dev`.
+3. Откройте `http://localhost:5173`.
 
-Откройте `http://localhost:8091`. Остановить: `docker compose down`.
+Для Synapse скопируйте `.env.example` в `.env` и заполните параметры. Секреты не добавляйте в репозиторий.
 
-## Synapse
+## Проверки
 
-Скопируйте `.env.example` в `.env` и заполните параметры `SYNAPSE_*`. После этого кнопка «Исследовать в Synapse» создаст проект с выбранными опытами и их доказательствами. По умолчанию включён `human` approval: brief утверждается в Synapse перед выполнением.
-
-Текущий локальный корпус в `data/evidence.json` полностью синтетический. Для следующего этапа его нужно заменить обезличенными лабораторными документами и добавить загрузку вложений в Synapse.
+- Frontend: `cd frontend && npm run lint && npm run build`
+- Backend: `pytest backend/tests` в настроенном Python-окружении или проверка API внутри контейнера.
