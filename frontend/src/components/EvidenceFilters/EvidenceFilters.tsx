@@ -20,7 +20,6 @@ interface IInfoTooltip {
 
 const InfoTooltip: FC<IInfoTooltip> = ({ label, children }) => (
   <Tooltip
-    matchTriggerParentWidth={false}
     contentProps={{ side: "top", sideOffset: 8 }}
     target={
       <button

@@ -6,9 +6,12 @@ import "./styles/palette.scss";
 import "./styles/constants.scss";
 import "./styles/global.scss";
 import App from "./app/App";
+import { TooltipProvider } from "./components/ui/Tooltip/Tooltip";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <TooltipProvider>
+      <App />
+    </TooltipProvider>
   </StrictMode>,
 );

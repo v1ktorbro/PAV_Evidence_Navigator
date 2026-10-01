@@ -185,7 +185,6 @@ const EvidenceNavigator = () => {
                   <span>{label}</span>
                   {COMPARABILITY_DESCRIPTIONS[index] && (
                     <Tooltip
-                      matchTriggerParentWidth={false}
                       contentProps={{ side: "top", sideOffset: 8 }}
                       target={
                         <button
