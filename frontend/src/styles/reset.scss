@@ -1,6 +1,30 @@
-* { box-sizing: border-box; }
-html { min-width: 20rem; }
-body, h1, h2, h3, p, ul { margin: 0; }
-button, input, textarea { font: inherit; }
-button { cursor: pointer; }
-ul { padding: 0; }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 20rem;
+}
+
+body,
+h1,
+h2,
+h3,
+p,
+ul {
+  margin: 0;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+ul {
+  padding: 0;
+}

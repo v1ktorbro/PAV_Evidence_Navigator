@@ -29,6 +29,7 @@ This skill adapts the `t-front` skill set for this repository's Vite React clien
 - Reuse tokens from `src/styles/palette.scss` and `constants.scss`; use the `media` and `mixin` modules instead of recreating breakpoints and transitions.
 - Global selectors are restricted to `src/styles`. Do not add a global selector for a component.
 - Use camelCase class names and `root` for the component root. Keep visual spacing on a 4px/rem grid.
+- Format SCSS for reviewability: put every declaration on its own line and leave exactly one blank line between rule sets (including class selectors). Do not use one-line rule sets.
 
 ## Verification
 

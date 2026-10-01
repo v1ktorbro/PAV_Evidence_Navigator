@@ -9,8 +9,26 @@
   font-weight: 700;
 }
 
-.primary { background: var(--color-accent); color: #062016; }
-.primary:hover:not(:disabled) { background: var(--color-accent-hover); }
-.secondary { background: transparent; border-color: var(--color-border); color: var(--color-text); }
-.secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.06); }
-.root:disabled { cursor: wait; opacity: 0.65; }
+.primary {
+  background: var(--color-accent);
+  color: #062016;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.secondary {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.root:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
