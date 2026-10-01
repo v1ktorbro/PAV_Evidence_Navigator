@@ -1,0 +1,62 @@
+[
+  {
+    "id": "LAB-001",
+    "formulation": {"name": "ПАВ-A + полимер", "surfactant_class": "анионный", "concentration_wt_pct": 0.35},
+    "conditions": {"temperature_c": 75, "salinity_g_l": 45, "ph": 8.2, "rock_type": "карбонат", "permeability_md": 120, "oil": "модельная нефть"},
+    "method": "Core flood после заводнения; 1.0 порового объёма химического оторочка",
+    "result": {"label": "дополнительная нефтеотдача", "value": 11.8, "unit": "% OOIP"},
+    "comparability": {"status": "comparable", "reason": "Есть температура, минерализация, тип керна, проницаемость и методика."},
+    "missing_fields": [],
+    "source": {"document": "Синтетический отчёт EOR-LAB-24-01", "location": "стр. 14, табл. 4", "excerpt": "При 75 °C и 45 г/л TDS дополнительная нефтеотдача составила 11,8 % OOIP."}
+  },
+  {
+    "id": "LAB-002",
+    "formulation": {"name": "ПАВ-B", "surfactant_class": "неионогенный", "concentration_wt_pct": 0.50},
+    "conditions": {"temperature_c": 70, "salinity_g_l": 38, "ph": 7.1, "rock_type": "карбонат", "permeability_md": 95, "oil": "модельная нефть"},
+    "method": "Статическое измерение межфазного натяжения после 24 часов термостатирования",
+    "result": {"label": "межфазное натяжение", "value": 0.042, "unit": "мН/м"},
+    "comparability": {"status": "limited", "reason": "Сопоставимо по температуре и минерализации, но это IFT-тест, а не core flood."},
+    "missing_fields": ["режим вытеснения", "нефтеотдача"],
+    "source": {"document": "Синтетический отчёт EOR-LAB-24-02", "location": "стр. 7, рис. 3", "excerpt": "Минимальное IFT 0,042 мН/м зафиксировано при 70 °C и минерализации 38 г/л."}
+  },
+  {
+    "id": "LAB-003",
+    "formulation": {"name": "ПАВ-C + щёлочь", "surfactant_class": "анионный", "concentration_wt_pct": 0.28},
+    "conditions": {"temperature_c": 90, "salinity_g_l": 90, "ph": 10.4, "rock_type": "терригенный", "permeability_md": null, "oil": "дегазированная нефть"},
+    "method": "Core flood; в отчёте не указан поровый объём химического оторочка",
+    "result": {"label": "дополнительная нефтеотдача", "value": 8.6, "unit": "% OOIP"},
+    "comparability": {"status": "limited", "reason": "Отсутствуют проницаемость и объём оторочка; прямое ранжирование с другими core flood ограничено."},
+    "missing_fields": ["проницаемость", "объём оторочка"],
+    "source": {"document": "Синтетический отчёт EOR-LAB-24-03", "location": "стр. 21, табл. 6", "excerpt": "После химического вытеснения получено 8,6 % OOIP; параметры оторочка не зафиксированы."}
+  },
+  {
+    "id": "LAB-004",
+    "formulation": {"name": "ПАВ-D + полимер", "surfactant_class": "амфотерный", "concentration_wt_pct": 0.40},
+    "conditions": {"temperature_c": 85, "salinity_g_l": 55, "ph": 7.8, "rock_type": "карбонат", "permeability_md": 140, "oil": "рекомбинированная нефть"},
+    "method": "Core flood при пластовой температуре; 0.8 порового объёма химического оторочка",
+    "result": {"label": "адсорбция ПАВ", "value": 0.31, "unit": "мг/г породы"},
+    "comparability": {"status": "comparable", "reason": "Условия и методика описаны; сравнимо с другими измерениями адсорбции на карбонате."},
+    "missing_fields": ["дополнительная нефтеотдача"],
+    "source": {"document": "Синтетический отчёт EOR-LAB-24-04", "location": "стр. 11, табл. 2", "excerpt": "Равновесная адсорбция на карбонатном керне составила 0,31 мг/г."}
+  },
+  {
+    "id": "LAB-005",
+    "formulation": {"name": "ПАВ-E", "surfactant_class": "неионогенный", "concentration_wt_pct": 0.20},
+    "conditions": {"temperature_c": 60, "salinity_g_l": 25, "ph": null, "rock_type": "терригенный", "permeability_md": null, "oil": "не указано"},
+    "method": "В презентации указан только «успешный опыт» без методики",
+    "result": {"label": "заявленный эффект", "value": 15, "unit": "%"},
+    "comparability": {"status": "not_comparable", "reason": "Нет описания нефти, керна, методики и определения показателя."},
+    "missing_fields": ["pH", "проницаемость", "тип нефти", "методика", "определение метрики"],
+    "source": {"document": "Синтетическая презентация EOR-IDEA-05", "location": "слайд 9", "excerpt": "Указано «эффект 15 %» без условий и исходных данных."}
+  },
+  {
+    "id": "LAB-006",
+    "formulation": {"name": "ПАВ-F + со-ПАВ", "surfactant_class": "смесь", "concentration_wt_pct": 0.45},
+    "conditions": {"temperature_c": 80, "salinity_g_l": 48, "ph": 8.0, "rock_type": "карбонат", "permeability_md": 110, "oil": "модельная нефть"},
+    "method": "Реология раствора при трёх скоростях сдвига",
+    "result": {"label": "вязкость при 10 с⁻¹", "value": 18.2, "unit": "мПа·с"},
+    "comparability": {"status": "limited", "reason": "Условия хорошо описаны, но реология не доказывает нефтеотдачу без core flood."},
+    "missing_fields": ["нефтеотдача", "перепад давления в керне"],
+    "source": {"document": "Синтетический отчёт EOR-LAB-24-06", "location": "стр. 8, рис. 2", "excerpt": "При 80 °C вязкость составила 18,2 мПа·с при скорости сдвига 10 с⁻¹."}
+  }
+]

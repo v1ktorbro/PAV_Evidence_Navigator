@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ПАВ Evidence Navigator</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <header>
+      <div>
+        <p class="eyebrow">EOR · лабораторные доказательства</p>
+        <h1>ПАВ Evidence Navigator</h1>
+        <p class="lead">Сопоставляет лабораторные опыты по ПАВ, показывает ограничения и сохраняет ссылку на первоисточник.</p>
+      </div>
+      <div id="synapseState" class="pill">Проверяем Synapse…</div>
+    </header>
+
+    <main>
+      <section class="notice">
+        <strong>Что такое ПАВ?</strong> Молекула ПАВ взаимодействует и с водой, и с нефтью. В EOR она может снизить межфазное натяжение и помочь вытеснить нефть из породы. Этот стенд не выбирает химию для закачки — он помогает инженеру проверить доказательства.
+      </section>
+
+      <section class="panel filters">
+        <div><label>Температура от, °C <input id="minTemp" type="number" placeholder="например, 70"></label></div>
+        <div><label>Температура до, °C <input id="maxTemp" type="number" placeholder="например, 90"></label></div>
+        <div><label>Минерализация до, г/л <input id="maxSalinity" type="number" placeholder="например, 60"></label></div>
+        <label class="check"><input id="comparableOnly" type="checkbox"> Только сопоставимые</label>
+        <button id="applyFilters">Применить фильтр</button>
+      </section>
+
+      <section class="stats" id="stats"></section>
+
+      <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">Корпус опытов</p><h2>Матрица доказательств</h2></div><span id="selectedCount">Выбрано: 0</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th></th><th>Рецептура</th><th>Условия</th><th>Результат</th><th>Сопоставимость</th><th>Источник</th></tr></thead>
+          <tbody id="evidenceRows"></tbody>
+        </table></div>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <p class="eyebrow">Вопрос инженера</p>
+          <h2>Проверить набор опытов</h2>
+          <textarea id="question" rows="5">Какие результаты по карбонатному керну при 70–90 °C можно корректно сопоставить и каких условий не хватает?</textarea>
+          <div class="actions"><button id="localAnalysis" class="secondary">Собрать доказательства</button><button id="synapseResearch">Исследовать в Synapse</button></div>
+          <p class="hint">Synapse получит только выбранные записи, условия и ссылки на фрагменты синтетического корпуса.</p>
+        </article>
+        <article class="panel"><p class="eyebrow">Проверка качества</p><h2>Что нельзя скрывать</h2><ul id="gaps"></ul></article>
+      </section>
+
+      <section id="resultPanel" class="panel result" hidden>
+        <p class="eyebrow">Результат</p><h2 id="resultTitle"></h2><pre id="resultText"></pre>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
