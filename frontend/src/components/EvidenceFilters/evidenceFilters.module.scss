@@ -68,6 +68,19 @@ input {
   color: var(--color-accent);
 }
 
+.submitButton {
+  display: grid;
+}
+
+.submitLabel,
+.submitLabelPlaceholder {
+  grid-area: 1 / 1;
+}
+
+.submitLabelPlaceholder {
+  visibility: hidden;
+}
+
 @include media.tablet {
   .root {
     grid-template-columns: 1fr 1fr;

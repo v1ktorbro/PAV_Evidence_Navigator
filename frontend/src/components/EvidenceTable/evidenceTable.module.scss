@@ -26,6 +26,11 @@ td {
   font-size: 0.9375rem;
 }
 
+td:nth-child(3),
+td:nth-child(4) {
+  vertical-align: middle;
+}
+
 small {
   display: block;
   margin-top: 0.25rem;

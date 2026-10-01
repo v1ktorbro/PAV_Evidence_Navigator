@@ -115,8 +115,17 @@ const EvidenceFilters: FC<IEvidenceFilters> = ({
           ограничениями и несопоставимые скрываются.
         </InfoTooltip>
       </div>
-      <Button onClick={onSubmit} disabled={isLoading}>
-        {isLoading ? "Загрузка…" : "Применить фильтр"}
+      <Button
+        className={scss.submitButton}
+        onClick={onSubmit}
+        disabled={isLoading}
+      >
+        <span className={scss.submitLabel}>
+          {isLoading ? "Загрузка…" : "Применить фильтр"}
+        </span>
+        <span className={scss.submitLabelPlaceholder} aria-hidden="true">
+          Применить фильтр
+        </span>
       </Button>
     </section>
   );
