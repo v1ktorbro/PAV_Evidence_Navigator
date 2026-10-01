@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="water" x1="12" y1="10" x2="52" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1f5f79" />
+      <stop offset="1" stop-color="#123846" />
+    </linearGradient>
+    <linearGradient id="oil" x1="13" y1="50" x2="53" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0a202c" />
+      <stop offset="1" stop-color="#0e3341" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="17" fill="#071924" />
+  <path d="M7 34c7-4 13-4 19 0 6 4 12 4 18 0 5-4 9-4 13-2v15H7V34Z" fill="url(#water)" />
+  <path d="M7 40c7-4 13-4 19 0 6 4 12 4 18 0 5-4 9-4 13-2v19H7V40Z" fill="url(#oil)" />
+  <path d="M7 34c7-4 13-4 19 0 6 4 12 4 18 0 5-4 9-4 13-2" fill="none" stroke="#4ad0a0" stroke-linecap="round" stroke-width="2" />
+  <circle cx="32" cy="20" r="7" fill="#4ad0a0" />
+  <circle cx="32" cy="20" r="3" fill="#d9fff0" />
+  <path d="M29 27v10c0 5-3 9-8 11M35 27v10c0 5 3 9 8 11" fill="none" stroke="#f5f9f7" stroke-linecap="round" stroke-width="3" />
+  <circle cx="17" cy="47" r="3" fill="#f0ba58" />
+  <circle cx="47" cy="47" r="3" fill="#f0ba58" />
+  <path d="M20 46h7M37 46h7" stroke="#f0ba58" stroke-linecap="round" stroke-width="1.5" />
+</svg>
