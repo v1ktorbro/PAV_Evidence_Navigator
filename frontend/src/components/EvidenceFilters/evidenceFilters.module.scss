@@ -53,6 +53,11 @@ input {
   min-height: 1rem;
 }
 
+.checkbox input:enabled,
+.checkbox:has(input:enabled) label {
+  cursor: pointer;
+}
+
 .infoButton {
   display: inline-flex;
   flex: 0 0 auto;

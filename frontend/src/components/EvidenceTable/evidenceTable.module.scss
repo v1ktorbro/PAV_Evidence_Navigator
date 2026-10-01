@@ -42,6 +42,10 @@ input {
   accent-color: var(--color-accent);
 }
 
+input:enabled {
+  cursor: pointer;
+}
+
 .sourceContent {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
