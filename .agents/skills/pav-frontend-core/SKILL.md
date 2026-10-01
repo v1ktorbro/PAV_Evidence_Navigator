@@ -22,6 +22,7 @@ This skill adapts the `t-front` skill set for this repository's Vite React clien
 - Use `import type` for erased contracts. Do not introduce barrels or aliases just to shorten an import.
 - The owner of a screen or collection owns its request, filter, loading, and error state. Do not duplicate API state into another state layer without a concrete need.
 - Async UI must expose loading and error outcomes; preserve user input on failure and clear it only after confirmed success.
+- Format TypeScript and TSX with Prettier defaults. Do not pack several meaningful statements or nested JSX elements into a single line; expand non-trivial structures into an indented, reviewable form.
 
 ## Styling
 
