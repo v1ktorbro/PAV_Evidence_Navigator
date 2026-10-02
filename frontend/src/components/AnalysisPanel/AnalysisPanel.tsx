@@ -19,6 +19,7 @@ const AnalysisPanel: FC<IAnalysisPanel> = ({
   onQuestionChange,
   onContinue,
 }) => {
+  const isContinueDisabled = isLoading || selectedCount === 0;
   const handleQuestionChange = (event: ChangeEvent<HTMLTextAreaElement>) =>
     onQuestionChange(event.target.value);
   return (
@@ -41,7 +42,7 @@ const AnalysisPanel: FC<IAnalysisPanel> = ({
         <Button
           className={scss.continueButton}
           onClick={onContinue}
-          disabled={isLoading}
+          disabled={isContinueDisabled}
         >
           Проверить полноту данных
           <span className={scss.buttonIcon} aria-hidden="true">
@@ -49,6 +50,11 @@ const AnalysisPanel: FC<IAnalysisPanel> = ({
           </span>
         </Button>
       </div>
+      <p className={scss.selectionHint} aria-live="polite">
+        {selectedCount === 0
+          ? "Выберите хотя бы один опыт для анализа."
+          : String.fromCharCode(160)}
+      </p>
     </section>
   );
 };

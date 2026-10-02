@@ -35,6 +35,11 @@ textarea {
   font-size: 0.875rem;
 }
 
+.selectionHint {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -45,6 +50,10 @@ textarea {
   display: inline-flex;
   gap: 0.5rem;
   align-items: center;
+}
+
+.continueButton:disabled {
+  cursor: not-allowed;
 }
 
 .buttonIcon {
