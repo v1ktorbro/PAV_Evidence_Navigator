@@ -8,12 +8,14 @@ import {
 import ArrowLeftIcon from "./icons/ArrowLeft";
 import ArrowRightIcon from "./icons/ArrowRight";
 import ExternalLinkIcon from "./icons/ExternalLink";
+import PavLogoIcon from "./icons/PavLogo";
 import QuestionIcon from "./icons/Question";
 
 export type IIconRendererTypes =
   | "arrowLeft"
   | "arrowRight"
   | "externalLink"
+  | "pavLogo"
   | "question";
 
 export const ICONS_ENUM: Record<
@@ -23,6 +25,7 @@ export const ICONS_ENUM: Record<
   arrowLeft: ArrowLeftIcon,
   arrowRight: ArrowRightIcon,
   externalLink: ExternalLinkIcon,
+  pavLogo: PavLogoIcon,
   question: QuestionIcon,
 } as const;
 

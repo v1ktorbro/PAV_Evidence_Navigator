@@ -173,12 +173,16 @@ const EvidenceNavigator = () => {
       <header className={scss.header}>
         <div>
           <p className={scss.eyebrow}>EOR · лабораторные доказательства</p>
-          <img
-            className={scss.logo}
-            src="/pav-evidence-navigator-logo.svg"
-            alt="ПАВ Evidence Navigator"
-          />
-          <h1 className={scss.visuallyHidden}>ПАВ Evidence Navigator</h1>
+          <div className={scss.brand}>
+            <a
+              className={scss.logoLink}
+              href="/"
+              aria-label="Вернуться на главную"
+            >
+              <IconRenderer className={scss.logo} icon="pavLogo" />
+            </a>
+            <h1>Навигатор доказательств по ПАВ</h1>
+          </div>
           <p className={scss.lead}>
             Сопоставляет лабораторные опыты по ПАВ и сохраняет связь с
             первоисточником.

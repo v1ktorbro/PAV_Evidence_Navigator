@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.app.config import settings
 from backend.app.presentation.api import router
 
-app = FastAPI(title="ПАВ Evidence Navigator API", version="1.0.0")
+app = FastAPI(title="Навигатор доказательств по ПАВ API", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 app.include_router(router)
 
