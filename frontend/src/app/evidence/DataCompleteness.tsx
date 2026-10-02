@@ -180,7 +180,7 @@ const DataCompleteness = () => {
             <span className={scss.buttonIcon} aria-hidden="true">
               <IconRenderer icon="arrowLeft" />
             </span>
-            Изменить вопрос
+            Вернуться к настройке запроса
           </Button>
         </div>
       </header>
