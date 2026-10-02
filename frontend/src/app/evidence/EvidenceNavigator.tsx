@@ -2,10 +2,7 @@ import scss from "./evidenceNavigator.module.scss";
 
 import { useEffect, useState } from "react";
 
-import {
-  getEvidence,
-  getSynapseConfig,
-} from "../../api/evidence";
+import { getEvidence, getSynapseConfig } from "../../api/evidence";
 import type {
   EvidenceFiltersValue,
   EvidenceResponse,
@@ -105,7 +102,9 @@ const EvidenceNavigator = () => {
   useEffect(() => {
     const initialise = async () => {
       try {
-        const response = await getEvidence(restoredFlow?.filters ?? INITIAL_FILTERS);
+        const response = await getEvidence(
+          restoredFlow?.filters ?? INITIAL_FILTERS,
+        );
         setEvidence(response);
         setSelectedIds(
           restoredFlow
@@ -172,7 +171,6 @@ const EvidenceNavigator = () => {
     <main className={scss.root}>
       <header className={scss.header}>
         <div>
-          <p className={scss.eyebrow}>EOR · лабораторные доказательства</p>
           <div className={scss.brand}>
             <a
               className={scss.logoLink}
@@ -181,7 +179,37 @@ const EvidenceNavigator = () => {
             >
               <IconRenderer className={scss.logo} icon="pavLogo" />
             </a>
-            <h1>Навигатор доказательств по ПАВ</h1>
+            <div className={scss.brandContent}>
+              <p className={scss.eyebrow}>
+                <span className={scss.eyebrowContent}>
+                  <span className={scss.eorTerm}>
+                    <span>EOR</span>
+                    <Tooltip
+                      contentProps={{ side: "top", sideOffset: 8 }}
+                      target={
+                        <button
+                          className={scss.eorInfoButton}
+                          type="button"
+                          aria-label="Пояснение: EOR"
+                        >
+                          <IconRenderer icon="question" />
+                        </button>
+                      }
+                    >
+                      EOR (Enhanced Oil Recovery) — методы увеличения
+                      нефтеотдачи. Они помогают извлечь из пласта больше нефти
+                      после первичной и вторичной добычи; здесь данные опытов
+                      позволяют оценить применимость ПАВ к таким методам.
+                    </Tooltip>
+                  </span>
+                  <span className={scss.separator} aria-hidden="true">
+                    ·
+                  </span>
+                  <span>лабораторные доказательства</span>
+                </span>
+              </p>
+              <h1>Навигатор доказательств по ПАВ</h1>
+            </div>
           </div>
           <p className={scss.lead}>
             Сопоставляет лабораторные опыты по ПАВ и сохраняет связь с
@@ -246,7 +274,10 @@ const EvidenceNavigator = () => {
                 <p className={scss.eyebrow}>Доказательная база</p>
                 <h2>Выберите опыты для анализа</h2>
                 {hasFilterValues(appliedFilters) && (
-                  <ul className={scss.appliedFilters} aria-label="Применённые фильтры">
+                  <ul
+                    className={scss.appliedFilters}
+                    aria-label="Применённые фильтры"
+                  >
                     {getAppliedFilters(appliedFilters).map((filter) => (
                       <li key={filter.key}>
                         <span>{filter.label}</span>

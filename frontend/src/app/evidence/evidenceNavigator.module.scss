@@ -27,16 +27,62 @@ h2 {
   text-transform: uppercase;
 }
 
+.eyebrowContent {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.eorTerm {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.separator {
+  color: var(--color-text-muted);
+}
+
+.eorInfoButton {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 0;
+}
+
+.eorInfoButton:hover {
+  color: var(--color-accent);
+}
+
+.eorInfoButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0.125rem;
+}
+
 .brand {
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  margin-top: 0.25rem;
+}
+
+.brandContent {
+  min-width: 0;
 }
 
 .brand h1 {
   margin: 0;
   font-size: clamp(1.75rem, 4vw, 2.25rem);
+}
+
+.lead {
+  max-width: 42rem;
+  margin-top: 0.75rem;
+  color: var(--color-text-muted);
 }
 
 .logoLink {
@@ -54,12 +100,6 @@ h2 {
   display: block;
   width: 6rem;
   height: auto;
-}
-
-.lead {
-  max-width: 42rem;
-  margin-top: 0.75rem;
-  color: var(--color-text-muted);
 }
 
 .synapseState {
@@ -249,6 +289,37 @@ h2 {
   .sectionHeading {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .brand {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    column-gap: 0.75rem;
+    row-gap: 0.5rem;
+  }
+
+  .brandContent {
+    display: contents;
+  }
+
+  .logoLink {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .brand h1 {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .brandContent .eyebrow {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .header > div > .lead {
+    margin-left: calc(6rem + 0.75rem);
   }
 
   .synapseState {
