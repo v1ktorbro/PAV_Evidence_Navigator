@@ -171,14 +171,25 @@ const DataCompleteness = () => {
 
       <section className={scss.actions} aria-label="Следующие действия">
         <Button
+          className={scss.collectEvidenceButton}
           variant="secondary"
           onClick={() => void handleAnalyse()}
           disabled={isLoading}
         >
           Собрать доказательства
+          <span className={scss.buttonIcon} aria-hidden="true">
+            <IconRenderer icon="analyticsReport" />
+          </span>
         </Button>
-        <Button onClick={() => void handleSynapse()} disabled={isLoading}>
+        <Button
+          className={scss.synapseButton}
+          onClick={() => void handleSynapse()}
+          disabled={isLoading}
+        >
           Исследовать в Synapse
+          <span className={scss.buttonIcon} aria-hidden="true">
+            <IconRenderer icon="synapseResearch" />
+          </span>
         </Button>
       </section>
 

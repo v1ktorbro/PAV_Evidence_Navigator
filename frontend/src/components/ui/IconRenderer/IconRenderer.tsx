@@ -7,26 +7,32 @@ import {
 
 import ArrowLeftIcon from "./icons/ArrowLeft";
 import ArrowRightIcon from "./icons/ArrowRight";
+import AnalyticsReportIcon from "./icons/AnalyticsReport";
 import ExternalLinkIcon from "./icons/ExternalLink";
 import PavLogoIcon from "./icons/PavLogo";
 import QuestionIcon from "./icons/Question";
+import SynapseResearchIcon from "./icons/SynapseResearch";
 
 export type IIconRendererTypes =
+  | "analyticsReport"
   | "arrowLeft"
   | "arrowRight"
   | "externalLink"
   | "pavLogo"
-  | "question";
+  | "question"
+  | "synapseResearch";
 
 export const ICONS_ENUM: Record<
   IIconRendererTypes,
   ComponentType<{ className?: string; style: CSSProperties }>
 > = {
+  analyticsReport: AnalyticsReportIcon,
   arrowLeft: ArrowLeftIcon,
   arrowRight: ArrowRightIcon,
   externalLink: ExternalLinkIcon,
   pavLogo: PavLogoIcon,
   question: QuestionIcon,
+  synapseResearch: SynapseResearchIcon,
 } as const;
 
 const IconRenderer: FC<{
