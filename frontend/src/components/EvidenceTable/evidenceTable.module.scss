@@ -1,14 +1,7 @@
 .wrapper {
   min-height: 20rem;
-  max-height: 36rem;
   overflow: auto;
-}
-
-@media (max-height: 52rem) {
-  .wrapper {
-    min-height: 0;
-    max-height: 50dvh;
-  }
+  max-height: 33dvh;
 }
 
 .root {
@@ -49,11 +42,18 @@ small {
 }
 
 input {
+  width: 1rem;
+  height: 1rem;
   accent-color: var(--color-accent);
 }
 
 input:enabled {
   cursor: pointer;
+}
+
+th:first-child,
+td:first-child {
+  vertical-align: middle;
 }
 
 .sourceContent {

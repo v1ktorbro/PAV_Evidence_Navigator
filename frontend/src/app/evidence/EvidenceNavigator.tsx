@@ -23,6 +23,11 @@ const INITIAL_FILTERS: EvidenceFiltersValue = {
   maxSalinity: "",
   comparableOnly: false,
 };
+const hasFilterValues = (filters: EvidenceFiltersValue) =>
+  filters.minTemperature.trim().length > 0 ||
+  filters.maxTemperature.trim().length > 0 ||
+  filters.maxSalinity.trim().length > 0 ||
+  filters.comparableOnly;
 const COMPARABILITY_DESCRIPTIONS = [
   undefined,
   "Условия опыта соответствуют выбранным параметрам и его можно использовать для прямого сравнения.",
@@ -41,6 +46,9 @@ const EvidenceNavigator = () => {
   const [filters, setFilters] = useState(
     restoredFlow?.filters ?? INITIAL_FILTERS,
   );
+  const [appliedFilters, setAppliedFilters] = useState(
+    restoredFlow?.filters ?? INITIAL_FILTERS,
+  );
   const [evidence, setEvidence] = useState<EvidenceResponse>();
   const [synapseConfig, setSynapseConfig] = useState<SynapseConfig>();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -56,6 +64,7 @@ const EvidenceNavigator = () => {
       const response = await getEvidence(nextFilters);
       setEvidence(response);
       setSelectedIds(response.items.map((item) => item.id));
+      setAppliedFilters(nextFilters);
     } catch (error) {
       setResult({
         title: "Ошибка загрузки",
@@ -155,6 +164,7 @@ const EvidenceNavigator = () => {
         value={filters}
         onChange={setFilters}
         onSubmit={() => void loadEvidence()}
+        hasAppliedFilters={hasFilterValues(appliedFilters)}
         isLoading={isLoading}
       />
       {evidence && (
