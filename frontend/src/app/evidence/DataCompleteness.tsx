@@ -10,17 +10,28 @@ import {
 } from "../../api/evidence";
 import type {
   EvidenceResponse,
+  EvidenceSummary,
   SynapseConfig,
 } from "../../assets/types/evidence";
 import Button from "../../components/ui/Button/Button";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import { getAnalysisFlow } from "./analysisFlow";
 import SynapseStatus from "./SynapseStatus";
+
+interface AnalysisResultValue {
+  summary: EvidenceSummary;
+  source_fragments: Array<{ experiment: string; excerpt: string }>;
+}
+
+type Result =
+  | { title: string; value: AnalysisResultValue; kind: "analysis" }
+  | { title: string; value: unknown; kind: "generic" };
+
 const DataCompleteness = () => {
   const [flow] = useState(getAnalysisFlow);
   const [evidence, setEvidence] = useState<EvidenceResponse>();
   const [synapseConfig, setSynapseConfig] = useState<SynapseConfig>();
-  const [result, setResult] = useState<{ title: string; value: unknown }>();
+  const [result, setResult] = useState<Result>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -38,6 +49,7 @@ const DataCompleteness = () => {
           title: "Ошибка загрузки",
           value:
             error instanceof Error ? error.message : "Неизвестная ошибка.",
+          kind: "generic",
         });
       } finally {
         setIsLoading(false);
@@ -71,6 +83,7 @@ const DataCompleteness = () => {
       const response = await createAnalysis(flow.question, flow.selectedIds);
       setResult({
         title: "Проверяемая подборка",
+        kind: "analysis",
         value: {
           summary: response.summary,
           source_fragments: response.items.map((item) => ({
@@ -84,6 +97,7 @@ const DataCompleteness = () => {
         title: "Ошибка анализа",
         value:
           error instanceof Error ? error.message : "Неизвестная ошибка.",
+        kind: "generic",
       });
     } finally {
       setIsLoading(false);
@@ -95,16 +109,35 @@ const DataCompleteness = () => {
     setIsLoading(true);
     try {
       const project = await createSynapseProject(flow.question, flow.selectedIds);
-      setResult({ title: "Проект Synapse", value: project });
+      setResult({
+        title: "Проект Synapse",
+        value: project,
+        kind: "generic",
+      });
     } catch (error) {
       setResult({
         title: "Synapse недоступен",
         value:
           error instanceof Error ? error.message : "Неизвестная ошибка.",
+        kind: "generic",
       });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDownloadJson = (value: AnalysisResultValue) => {
+    const json = JSON.stringify(value, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const downloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = downloadUrl;
+    link.download = "pav-evidence-collection.json";
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(downloadUrl);
   };
 
   if (!flow) {
@@ -196,12 +229,73 @@ const DataCompleteness = () => {
       {result && (
         <section className={scss.result}>
           <p className={scss.eyebrow}>Результат</p>
-          <h2>{result.title}</h2>
-          <pre>
-            {typeof result.value === "string"
-              ? result.value
-              : JSON.stringify(result.value, null, 2)}
-          </pre>
+          <div className={scss.resultHeader}>
+            <h2>{result.title}</h2>
+            {result.kind === "analysis" && (
+              <button
+                className={scss.downloadButton}
+                type="button"
+                aria-label="Скачать в JSON"
+                title="Скачать в JSON"
+                onClick={() => handleDownloadJson(result.value)}
+              >
+                <IconRenderer icon="download" />
+              </button>
+            )}
+          </div>
+          {result.kind === "analysis" ? (
+            <div className={scss.analysisResult}>
+              <dl className={scss.summary}>
+                <div>
+                  <dt>Всего опытов</dt>
+                  <dd>{result.value.summary.total}</dd>
+                </div>
+                <div>
+                  <dt>Сопоставимы</dt>
+                  <dd>{result.value.summary.comparable}</dd>
+                </div>
+                <div>
+                  <dt>Ограниченно сопоставимы</dt>
+                  <dd>{result.value.summary.limited}</dd>
+                </div>
+                <div>
+                  <dt>Не сопоставимы</dt>
+                  <dd>{result.value.summary.not_comparable}</dd>
+                </div>
+              </dl>
+
+              {result.value.summary.missing_fields.length > 0 && (
+                <div>
+                  <h3>Отсутствующие сведения</h3>
+                  <ul className={scss.fieldList}>
+                    {result.value.summary.missing_fields.map((field) => (
+                      <li key={field}>{field}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <p className={scss.warning}>{result.value.summary.warning}</p>
+
+              <div>
+                <h3>Фрагменты источников</h3>
+                <ul className={scss.sourceList}>
+                  {result.value.source_fragments.map((fragment) => (
+                    <li key={fragment.experiment} className={scss.sourceCard}>
+                      <strong>{fragment.experiment}</strong>
+                      <p>{fragment.excerpt}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <pre>
+              {typeof result.value === "string"
+                ? result.value
+                : JSON.stringify(result.value, null, 2)}
+            </pre>
+          )}
         </section>
       )}
     </main>
