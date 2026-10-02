@@ -10,7 +10,6 @@ interface IEvidenceFilters {
   value: EvidenceFiltersValue;
   onChange: (value: EvidenceFiltersValue) => void;
   onSubmit: () => void;
-  hasAppliedFilters: boolean;
   isLoading: boolean;
 }
 
@@ -40,7 +39,6 @@ const EvidenceFilters: FC<IEvidenceFilters> = ({
   value,
   onChange,
   onSubmit,
-  hasAppliedFilters,
   isLoading,
 }) => {
   const hasFilterValues =
@@ -48,12 +46,7 @@ const EvidenceFilters: FC<IEvidenceFilters> = ({
     value.maxTemperature.trim().length > 0 ||
     value.maxSalinity.trim().length > 0 ||
     value.comparableOnly;
-  const isSubmitDisabled =
-    isLoading || (!hasFilterValues && !hasAppliedFilters);
-  const submitLabel =
-    !hasFilterValues && hasAppliedFilters
-      ? "Сбросить фильтры"
-      : "Применить фильтр";
+  const isSubmitDisabled = isLoading || !hasFilterValues;
 
   const handleValueChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange({
@@ -135,10 +128,10 @@ const EvidenceFilters: FC<IEvidenceFilters> = ({
         disabled={isSubmitDisabled}
       >
         <span className={scss.submitLabel}>
-          {isLoading ? "Загрузка…" : submitLabel}
+          {isLoading ? "Загрузка…" : "Применить фильтры"}
         </span>
         <span className={scss.submitLabelPlaceholder} aria-hidden="true">
-          Применить фильтр
+          Применить фильтры
         </span>
       </Button>
     </section>

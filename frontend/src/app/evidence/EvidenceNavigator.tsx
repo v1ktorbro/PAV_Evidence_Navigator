@@ -28,6 +28,32 @@ const hasFilterValues = (filters: EvidenceFiltersValue) =>
   filters.maxTemperature.trim().length > 0 ||
   filters.maxSalinity.trim().length > 0 ||
   filters.comparableOnly;
+type EvidenceFilterKey = keyof EvidenceFiltersValue;
+
+interface IAppliedFilter {
+  key: EvidenceFilterKey;
+  label: string;
+}
+
+const getAppliedFilters = (filters: EvidenceFiltersValue): IAppliedFilter[] =>
+  [
+    filters.minTemperature.trim() && {
+      key: "minTemperature" as const,
+      label: `Температура от: ${filters.minTemperature} °C`,
+    },
+    filters.maxTemperature.trim() && {
+      key: "maxTemperature" as const,
+      label: `Температура до: ${filters.maxTemperature} °C`,
+    },
+    filters.maxSalinity.trim() && {
+      key: "maxSalinity" as const,
+      label: `Минерализация до: ${filters.maxSalinity} г/л`,
+    },
+    filters.comparableOnly && {
+      key: "comparableOnly" as const,
+      label: "Только сопоставимые",
+    },
+  ].filter((filter): filter is IAppliedFilter => Boolean(filter));
 const COMPARABILITY_DESCRIPTIONS = [
   undefined,
   "Условия опыта соответствуют выбранным параметрам и его можно использовать для прямого сравнения.",
@@ -64,6 +90,7 @@ const EvidenceNavigator = () => {
       const response = await getEvidence(nextFilters);
       setEvidence(response);
       setSelectedIds(response.items.map((item) => item.id));
+      setFilters(nextFilters);
       setAppliedFilters(nextFilters);
     } catch (error) {
       setResult({
@@ -124,6 +151,16 @@ const EvidenceNavigator = () => {
       selected && evidence ? evidence.items.map((item) => item.id) : [],
     );
   };
+
+  const handleAppliedFilterRemove = (key: EvidenceFilterKey) => {
+    const nextFilters = {
+      ...filters,
+      [key]: INITIAL_FILTERS[key],
+    };
+
+    void loadEvidence(nextFilters);
+  };
+
   const handleContinue = () => {
     if (!ensureQuestion()) return;
 
@@ -164,7 +201,6 @@ const EvidenceNavigator = () => {
         value={filters}
         onChange={setFilters}
         onSubmit={() => void loadEvidence()}
-        hasAppliedFilters={hasFilterValues(appliedFilters)}
         isLoading={isLoading}
       />
       {evidence && (
@@ -205,6 +241,22 @@ const EvidenceNavigator = () => {
               <div>
                 <p className={scss.eyebrow}>Доказательная база</p>
                 <h2>Выберите опыты для анализа</h2>
+                {hasFilterValues(appliedFilters) && (
+                  <ul className={scss.appliedFilters} aria-label="Применённые фильтры">
+                    {getAppliedFilters(appliedFilters).map((filter) => (
+                      <li key={filter.key}>
+                        <span>{filter.label}</span>
+                        <button
+                          type="button"
+                          className={scss.removeFilterButton}
+                          aria-label={`Удалить фильтр «${filter.label}»`}
+                          onClick={() => handleAppliedFilterRemove(filter.key)}
+                          disabled={isLoading}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <span>Выбрано: {selectedIds.length}</span>
             </div>
