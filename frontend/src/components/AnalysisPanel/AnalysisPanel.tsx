@@ -8,8 +8,7 @@ interface IAnalysisPanel {
   selectedCount: number;
   isLoading: boolean;
   onQuestionChange: (question: string) => void;
-  onAnalyse: () => void;
-  onSynapse: () => void;
+  onContinue: () => void;
 }
 
 const AnalysisPanel: FC<IAnalysisPanel> = ({
@@ -17,8 +16,7 @@ const AnalysisPanel: FC<IAnalysisPanel> = ({
   selectedCount,
   isLoading,
   onQuestionChange,
-  onAnalyse,
-  onSynapse,
+  onContinue,
 }) => {
   const handleQuestionChange = (event: ChangeEvent<HTMLTextAreaElement>) =>
     onQuestionChange(event.target.value);
@@ -35,15 +33,12 @@ const AnalysisPanel: FC<IAnalysisPanel> = ({
         aria-label="Вопрос к выбранным опытам"
       />
       <p className={scss.hint}>
-        Выбрано: {selectedCount}. Synapse получит только выбранные записи,
-        условия и ссылки на фрагменты корпуса.
+        Выбрано: {selectedCount}. На следующем шаге можно проверить, хватает ли
+        сведений для этого вопроса.
       </p>
       <div className={scss.actions}>
-        <Button variant="secondary" onClick={onAnalyse} disabled={isLoading}>
-          Собрать доказательства
-        </Button>
-        <Button onClick={onSynapse} disabled={isLoading}>
-          Исследовать в Synapse
+        <Button onClick={onContinue} disabled={isLoading}>
+          Проверить полноту данных
         </Button>
       </div>
     </section>

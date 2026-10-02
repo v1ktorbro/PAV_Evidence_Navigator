@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 
 import {
-  createAnalysis,
-  createSynapseProject,
   getEvidence,
   getSynapseConfig,
 } from "../../api/evidence";
@@ -16,6 +14,7 @@ import EvidenceFilters from "../../components/EvidenceFilters/EvidenceFilters";
 import EvidenceTable from "../../components/EvidenceTable/EvidenceTable";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import Tooltip from "../../components/ui/Tooltip/Tooltip";
+import { getAnalysisFlow, saveAnalysisFlow } from "./analysisFlow";
 import scss from "./evidenceNavigator.module.scss";
 
 const INITIAL_FILTERS: EvidenceFiltersValue = {
@@ -32,13 +31,22 @@ const COMPARABILITY_DESCRIPTIONS = [
 ];
 const DEFAULT_QUESTION =
   "Какие результаты по карбонатному керну при 70–90 °C можно корректно сопоставить и каких условий не хватает?";
+const getRestoredFlow = () =>
+  new URLSearchParams(window.location.search).has("restore-analysis")
+    ? getAnalysisFlow()
+    : undefined;
 
 const EvidenceNavigator = () => {
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const [restoredFlow] = useState(getRestoredFlow);
+  const [filters, setFilters] = useState(
+    restoredFlow?.filters ?? INITIAL_FILTERS,
+  );
   const [evidence, setEvidence] = useState<EvidenceResponse>();
   const [synapseConfig, setSynapseConfig] = useState<SynapseConfig>();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [question, setQuestion] = useState(DEFAULT_QUESTION);
+  const [question, setQuestion] = useState(
+    restoredFlow?.question ?? DEFAULT_QUESTION,
+  );
   const [result, setResult] = useState<{ title: string; value: unknown }>();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -61,9 +69,15 @@ const EvidenceNavigator = () => {
   useEffect(() => {
     const initialise = async () => {
       try {
-        const response = await getEvidence(INITIAL_FILTERS);
+        const response = await getEvidence(restoredFlow?.filters ?? INITIAL_FILTERS);
         setEvidence(response);
-        setSelectedIds(response.items.map((item) => item.id));
+        setSelectedIds(
+          restoredFlow
+            ? response.items
+                .filter((item) => restoredFlow.selectedIds.includes(item.id))
+                .map((item) => item.id)
+            : response.items.map((item) => item.id),
+        );
       } catch (error) {
         setResult({
           title: "Ошибка загрузки",
@@ -78,7 +92,7 @@ const EvidenceNavigator = () => {
     void getSynapseConfig()
       .then(setSynapseConfig)
       .catch(() => undefined);
-  }, []);
+  }, [restoredFlow]);
 
   const ensureQuestion = () => {
     if (question.trim().length >= 5) return true;
@@ -95,44 +109,11 @@ const EvidenceNavigator = () => {
         ? [...current, id]
         : current.filter((currentId) => currentId !== id),
     );
-  const handleAnalyse = async () => {
+  const handleContinue = () => {
     if (!ensureQuestion()) return;
-    setIsLoading(true);
-    try {
-      const response = await createAnalysis(question.trim(), selectedIds);
-      setResult({
-        title: "Проверяемая подборка",
-        value: {
-          summary: response.summary,
-          source_fragments: response.items.map((item) => ({
-            experiment: item.id,
-            excerpt: item.source.excerpt,
-          })),
-        },
-      });
-    } catch (error) {
-      setResult({
-        title: "Ошибка анализа",
-        value: error instanceof Error ? error.message : "Неизвестная ошибка.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const handleSynapse = async () => {
-    if (!ensureQuestion()) return;
-    setIsLoading(true);
-    try {
-      const project = await createSynapseProject(question.trim(), selectedIds);
-      setResult({ title: "Проект Synapse", value: project });
-    } catch (error) {
-      setResult({
-        title: "Synapse недоступен",
-        value: error instanceof Error ? error.message : "Неизвестная ошибка.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+
+    saveAnalysisFlow({ question: question.trim(), selectedIds, filters });
+    window.location.assign("/completeness");
   };
 
   return (
@@ -217,28 +198,14 @@ const EvidenceNavigator = () => {
               onSelectionChange={handleSelectionChange}
             />
           </section>
-          <section className={scss.grid}>
+          <section className={scss.analysis}>
             <AnalysisPanel
               question={question}
               selectedCount={selectedIds.length}
               isLoading={isLoading}
               onQuestionChange={setQuestion}
-              onAnalyse={() => void handleAnalyse()}
-              onSynapse={() => void handleSynapse()}
+              onContinue={handleContinue}
             />
-            <article className={scss.panel}>
-              <p className={scss.eyebrow}>Полнота данных</p>
-              <h2>Какие сведения отсутствуют</h2>
-              <ul className={scss.gaps}>
-                {evidence.summary.missing_fields.length ? (
-                  evidence.summary.missing_fields.map((field) => (
-                    <li key={field}>{field}</li>
-                  ))
-                ) : (
-                  <li>В текущей выборке обязательные поля заполнены.</li>
-                )}
-              </ul>
-            </article>
           </section>
         </>
       )}

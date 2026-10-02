@@ -1,4 +1,5 @@
 import EvidenceNavigator from "./evidence/EvidenceNavigator";
+import DataCompleteness from "./evidence/DataCompleteness";
 import SourceViewer from "./source/SourceViewer";
 
 const App = () => {
@@ -6,6 +7,10 @@ const App = () => {
 
   if (sourceMatch) {
     return <SourceViewer evidenceId={decodeURIComponent(sourceMatch[1])} />;
+  }
+
+  if (window.location.pathname === "/completeness") {
+    return <DataCompleteness />;
   }
 
   return <EvidenceNavigator />;
