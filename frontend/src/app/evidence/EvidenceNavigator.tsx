@@ -1,3 +1,5 @@
+import scss from "./evidenceNavigator.module.scss";
+
 import { useEffect, useState } from "react";
 
 import {
@@ -15,8 +17,6 @@ import EvidenceTable from "../../components/EvidenceTable/EvidenceTable";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import Tooltip from "../../components/ui/Tooltip/Tooltip";
 import { getAnalysisFlow, saveAnalysisFlow } from "./analysisFlow";
-import scss from "./evidenceNavigator.module.scss";
-
 const INITIAL_FILTERS: EvidenceFiltersValue = {
   minTemperature: "",
   maxTemperature: "",

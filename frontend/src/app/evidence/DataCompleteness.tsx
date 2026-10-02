@@ -1,3 +1,5 @@
+import scss from "./dataCompleteness.module.scss";
+
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -13,8 +15,6 @@ import type {
 import Button from "../../components/ui/Button/Button";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import { getAnalysisFlow } from "./analysisFlow";
-import scss from "./dataCompleteness.module.scss";
-
 const DataCompleteness = () => {
   const [flow] = useState(getAnalysisFlow);
   const [evidence, setEvidence] = useState<EvidenceResponse>();

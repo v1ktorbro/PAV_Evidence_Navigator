@@ -1,9 +1,9 @@
+import scss from "./analysisPanel.module.scss";
+
 import type { ChangeEvent, FC } from "react";
 
 import Button from "../ui/Button/Button";
 import IconRenderer from "../ui/IconRenderer/IconRenderer";
-import scss from "./analysisPanel.module.scss";
-
 interface IAnalysisPanel {
   question: string;
   selectedCount: number;

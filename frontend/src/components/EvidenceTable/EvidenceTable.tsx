@@ -1,3 +1,5 @@
+import scss from "./evidenceTable.module.scss";
+
 import { useEffect, useRef } from "react";
 import type { FC } from "react";
 
@@ -6,8 +8,6 @@ import type {
   EvidenceItem,
 } from "../../assets/types/evidence";
 import IconRenderer from "../ui/IconRenderer/IconRenderer";
-import scss from "./evidenceTable.module.scss";
-
 interface IEvidenceTable {
   items: EvidenceItem[];
   selectedIds: string[];

@@ -1,11 +1,11 @@
+import scss from "./evidenceFilters.module.scss";
+
 import type { ChangeEvent, FC } from "react";
 
 import type { EvidenceFiltersValue } from "../../assets/types/evidence";
 import Button from "../ui/Button/Button";
 import IconRenderer from "../ui/IconRenderer/IconRenderer";
 import Tooltip from "../ui/Tooltip/Tooltip";
-import scss from "./evidenceFilters.module.scss";
-
 interface IEvidenceFilters {
   value: EvidenceFiltersValue;
   onChange: (value: EvidenceFiltersValue) => void;

@@ -1,3 +1,5 @@
+import scss from "./tooltip.module.scss";
+
 import {
   Arrow,
   Content,
@@ -8,8 +10,6 @@ import {
   type TooltipContentProps,
 } from "@radix-ui/react-tooltip";
 import { memo, type ReactElement, type ReactNode } from "react";
-
-import scss from "./tooltip.module.scss";
 
 interface ITooltip {
   children: ReactNode;

@@ -12,7 +12,7 @@ This skill adapts the `t-front` skill set for this repository's Vite React clien
 - Keep application screens and screen-local composition in `src/app/<domain>`.
 - Put reusable domain-agnostic UI in `src/components`; primitives belong in `src/components/ui/<PascalCase>`.
 - Keep shared API contracts in `src/assets/types/<domain>` and HTTP calls in `src/api`.
-- A component uses a PascalCase `.tsx` filename and a neighbouring camelCase `.module.scss` stylesheet. Import the stylesheet as `scss`.
+- A component uses a PascalCase `.tsx` filename and a neighbouring camelCase `.module.scss` stylesheet. Import the stylesheet as `scss` on the first line of the component file.
 - Keep one-use hooks, types, and pure helpers with their feature. Move them to `assets` only once they have a genuine second consumer.
 
 ## React and TypeScript

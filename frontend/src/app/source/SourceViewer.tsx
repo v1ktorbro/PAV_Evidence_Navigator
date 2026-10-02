@@ -1,9 +1,9 @@
+import scss from "./sourceViewer.module.scss";
+
 import { useEffect, useState } from "react";
 
 import { getEvidenceItem } from "../../api/evidence";
 import type { EvidenceItem } from "../../assets/types/evidence";
-import scss from "./sourceViewer.module.scss";
-
 interface ISourceViewer {
   evidenceId: string;
 }

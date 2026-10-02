@@ -1,6 +1,6 @@
-import type { ButtonHTMLAttributes, FC } from "react";
-
 import scss from "./button.module.scss";
+
+import type { ButtonHTMLAttributes, FC } from "react";
 
 interface IButton extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary";
