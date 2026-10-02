@@ -46,7 +46,7 @@ const AnalysisPanel: FC<IAnalysisPanel> = ({
         >
           Проверить полноту данных
           <span className={scss.buttonIcon} aria-hidden="true">
-            <IconRenderer icon="externalLink" />
+            <IconRenderer icon="arrowRight" />
           </span>
         </Button>
       </div>

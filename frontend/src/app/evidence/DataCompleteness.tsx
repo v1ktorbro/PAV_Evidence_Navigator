@@ -11,6 +11,7 @@ import type {
   SynapseConfig,
 } from "../../assets/types/evidence";
 import Button from "../../components/ui/Button/Button";
+import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import { getAnalysisFlow } from "./analysisFlow";
 import scss from "./dataCompleteness.module.scss";
 
@@ -139,7 +140,14 @@ const DataCompleteness = () => {
               ? `Synapse · ${synapseConfig.approval_mode}`
               : "Synapse не настроен"}
           </span>
-          <Button variant="secondary" onClick={handleBack}>
+          <Button
+            className={scss.changeQuestionButton}
+            variant="secondary"
+            onClick={handleBack}
+          >
+            <span className={scss.buttonIcon} aria-hidden="true">
+              <IconRenderer icon="arrowLeft" />
+            </span>
             Изменить вопрос
           </Button>
         </div>
