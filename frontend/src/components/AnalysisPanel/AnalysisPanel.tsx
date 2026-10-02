@@ -25,14 +25,14 @@ const AnalysisPanel: FC<IAnalysisPanel> = ({
   return (
     <section className={scss.root}>
       <div>
-        <p className={scss.eyebrow}>Вопрос инженера</p>
-        <h2>Проверить набор опытов</h2>
+        <p className={scss.eyebrow}>Анализ запроса</p>
+        <h2>Сформулируйте вопрос к выбранным опытам</h2>
       </div>
       <textarea
         value={question}
         rows={5}
         onChange={handleQuestionChange}
-        aria-label="Вопрос инженера"
+        aria-label="Вопрос к выбранным опытам"
       />
       <p className={scss.hint}>
         Выбрано: {selectedCount}. Synapse получит только выбранные записи,

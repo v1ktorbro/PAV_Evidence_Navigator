@@ -206,8 +206,8 @@ const EvidenceNavigator = () => {
           <section className={scss.panel}>
             <div className={scss.sectionHeading}>
               <div>
-                <p className={scss.eyebrow}>Корпус опытов</p>
-                <h2>Матрица доказательств</h2>
+                <p className={scss.eyebrow}>Доказательная база</p>
+                <h2>Выберите опыты для анализа</h2>
               </div>
               <span>Выбрано: {selectedIds.length}</span>
             </div>
@@ -227,8 +227,8 @@ const EvidenceNavigator = () => {
               onSynapse={() => void handleSynapse()}
             />
             <article className={scss.panel}>
-              <p className={scss.eyebrow}>Проверка качества</p>
-              <h2>Что нельзя скрывать</h2>
+              <p className={scss.eyebrow}>Полнота данных</p>
+              <h2>Какие сведения отсутствуют</h2>
               <ul className={scss.gaps}>
                 {evidence.summary.missing_fields.length ? (
                   evidence.summary.missing_fields.map((field) => (
