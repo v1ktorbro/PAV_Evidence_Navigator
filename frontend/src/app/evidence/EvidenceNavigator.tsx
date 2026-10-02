@@ -14,6 +14,7 @@ import EvidenceTable from "../../components/EvidenceTable/EvidenceTable";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import Tooltip from "../../components/ui/Tooltip/Tooltip";
 import { getAnalysisFlow, saveAnalysisFlow } from "./analysisFlow";
+import SynapseStatus from "./SynapseStatus";
 const INITIAL_FILTERS: EvidenceFiltersValue = {
   minTemperature: "",
   maxTemperature: "",
@@ -216,13 +217,7 @@ const EvidenceNavigator = () => {
             первоисточником.
           </p>
         </div>
-        <span
-          className={`${scss.synapseState} ${synapseConfig?.configured ? scss.ready : ""}`}
-        >
-          {synapseConfig?.configured
-            ? `Synapse · ${synapseConfig.approval_mode}`
-            : "Synapse не настроен"}
-        </span>
+        <SynapseStatus config={synapseConfig} />
       </header>
       <section className={scss.notice}>
         <strong>Что такое ПАВ?</strong> Молекула взаимодействует и с водой, и с

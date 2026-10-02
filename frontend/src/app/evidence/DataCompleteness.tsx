@@ -15,6 +15,7 @@ import type {
 import Button from "../../components/ui/Button/Button";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import { getAnalysisFlow } from "./analysisFlow";
+import SynapseStatus from "./SynapseStatus";
 const DataCompleteness = () => {
   const [flow] = useState(getAnalysisFlow);
   const [evidence, setEvidence] = useState<EvidenceResponse>();
@@ -132,14 +133,12 @@ const DataCompleteness = () => {
             выбранных опытов перед подготовкой вывода.
           </p>
         </div>
-        <div className={scss.headerActions}>
-          <span
-            className={`${scss.synapseState} ${synapseConfig?.configured ? scss.ready : ""}`}
-          >
-            {synapseConfig?.configured
-              ? `Synapse · ${synapseConfig.approval_mode}`
-              : "Synapse не настроен"}
-          </span>
+        <div
+          className={`${scss.headerActions} ${
+            synapseConfig?.configured ? "" : scss.synapseUnavailable
+          }`}
+        >
+          <SynapseStatus config={synapseConfig} />
           <Button
             className={scss.changeQuestionButton}
             variant="secondary"

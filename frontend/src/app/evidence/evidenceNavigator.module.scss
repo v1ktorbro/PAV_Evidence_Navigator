@@ -1,5 +1,4 @@
 @use "../../styles/media";
-@use "../../styles/mixin";
 
 .root {
   width: min(var(--content-width), calc(100% - 2rem));
@@ -8,6 +7,7 @@
 }
 
 .header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   gap: 2rem;
@@ -101,63 +101,6 @@ h2 {
   display: block;
   width: 6rem;
   height: auto;
-}
-
-.synapseState {
-  display: inline-flex;
-  gap: 0.5rem;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-danger);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-danger) 14%, var(--color-surface));
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-danger) 45%, transparent);
-  color: var(--color-danger);
-  font-size: 0.875rem;
-  font-weight: 700;
-  white-space: nowrap;
-  animation: synapseAttention 1.8s ease-in-out infinite;
-
-  @include mixin.transition;
-}
-
-.synapseState::before {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 0.5rem currentColor;
-  content: "";
-}
-
-.ready {
-  color: var(--color-success);
-  border-color: var(--color-success);
-  background: transparent;
-  box-shadow: none;
-  font-weight: 400;
-  animation: none;
-}
-
-.ready::before {
-  display: none;
-}
-
-@keyframes synapseAttention {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-danger) 45%, transparent);
-  }
-
-  50% {
-    box-shadow: 0 0 0 0.5rem color-mix(in srgb, var(--color-danger) 0%, transparent);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .synapseState {
-    animation: none;
-  }
 }
 
 .notice,
@@ -364,10 +307,6 @@ h2 {
 
   .header > div > .lead {
     margin-left: calc(6rem + 0.75rem);
-  }
-
-  .synapseState {
-    align-self: start;
   }
 
   .stats {

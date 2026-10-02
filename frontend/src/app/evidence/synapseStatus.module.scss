@@ -1,0 +1,125 @@
+@use "../../styles/mixin";
+
+.root {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-danger);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-danger) 14%, var(--color-surface));
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-danger) 45%, transparent);
+  color: var(--color-danger);
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: synapseAttention 1.8s ease-in-out infinite;
+
+  @include mixin.transition;
+}
+
+.root::before {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0.5rem currentColor;
+  content: "";
+}
+
+.root:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 0.25rem;
+}
+
+.unconfigured {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  width: 0.75rem;
+  height: 0.75rem;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: var(--color-danger);
+  cursor: help;
+}
+
+.unconfigured::before {
+  display: none;
+}
+
+.unconfigured:hover,
+.unconfigured:focus-visible {
+  width: fit-content;
+  height: auto;
+  padding: 0.5rem 0.75rem;
+  overflow: visible;
+  border: 1px solid var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 14%, var(--color-surface));
+}
+
+.unconfigured:hover::before,
+.unconfigured:focus-visible::before {
+  display: block;
+}
+
+.unconfiguredLabel {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+
+  @include mixin.transition;
+}
+
+.unconfigured:hover .unconfiguredLabel,
+.unconfigured:focus-visible .unconfiguredLabel {
+  max-width: none;
+  opacity: 1;
+}
+
+.ready {
+  color: var(--color-success);
+  border-color: var(--color-success);
+  background: transparent;
+  box-shadow: none;
+  font-weight: 400;
+  animation: none;
+}
+
+.ready::before {
+  display: none;
+}
+
+.tooltipContent {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.tooltipSetup {
+  color: var(--color-accent-hover);
+}
+
+.tooltipContent code {
+  color: var(--color-text);
+  font-family: inherit;
+  font-weight: 700;
+}
+
+@keyframes synapseAttention {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-danger) 45%, transparent);
+  }
+
+  50% {
+    box-shadow: 0 0 0 0.5rem color-mix(in srgb, var(--color-danger) 0%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    animation: none;
+  }
+}
