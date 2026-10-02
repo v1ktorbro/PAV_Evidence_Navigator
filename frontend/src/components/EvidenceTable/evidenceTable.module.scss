@@ -1,5 +1,14 @@
 .wrapper {
-  overflow-x: auto;
+  min-height: 20rem;
+  max-height: 36rem;
+  overflow: auto;
+}
+
+@media (max-height: 52rem) {
+  .wrapper {
+    min-height: 0;
+    max-height: 50dvh;
+  }
 }
 
 .root {
