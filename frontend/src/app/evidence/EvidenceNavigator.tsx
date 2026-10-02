@@ -109,6 +109,12 @@ const EvidenceNavigator = () => {
         ? [...current, id]
         : current.filter((currentId) => currentId !== id),
     );
+
+  const handleSelectAll = (selected: boolean) => {
+    setSelectedIds(
+      selected && evidence ? evidence.items.map((item) => item.id) : [],
+    );
+  };
   const handleContinue = () => {
     if (!ensureQuestion()) return;
 
@@ -196,6 +202,7 @@ const EvidenceNavigator = () => {
               items={evidence.items}
               selectedIds={selectedIds}
               onSelectionChange={handleSelectionChange}
+              onSelectAll={handleSelectAll}
             />
           </section>
           <section className={scss.analysis}>
