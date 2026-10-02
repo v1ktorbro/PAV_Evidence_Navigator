@@ -1,6 +1,7 @@
 import type { ChangeEvent, FC } from "react";
 
 import Button from "../ui/Button/Button";
+import IconRenderer from "../ui/IconRenderer/IconRenderer";
 import scss from "./analysisPanel.module.scss";
 
 interface IAnalysisPanel {
@@ -37,8 +38,15 @@ const AnalysisPanel: FC<IAnalysisPanel> = ({
         сведений для этого вопроса.
       </p>
       <div className={scss.actions}>
-        <Button onClick={onContinue} disabled={isLoading}>
+        <Button
+          className={scss.continueButton}
+          onClick={onContinue}
+          disabled={isLoading}
+        >
           Проверить полноту данных
+          <span className={scss.buttonIcon} aria-hidden="true">
+            <IconRenderer icon="externalLink" />
+          </span>
         </Button>
       </div>
     </section>
