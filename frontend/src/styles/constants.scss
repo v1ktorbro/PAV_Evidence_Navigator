@@ -1,5 +1,6 @@
 :root {
   --content-width: 80rem;
+  --page-gutter: clamp(1.5rem, 4vw, 3rem);
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --shadow-panel: 0 1rem 2.5rem rgba(0, 0, 0, 0.16);

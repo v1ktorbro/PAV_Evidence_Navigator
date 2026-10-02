@@ -1,5 +1,8 @@
 .root {
-  width: min(48rem, calc(100% - 2rem));
+  width: min(
+    48rem,
+    calc(100% - var(--page-gutter) - var(--page-gutter))
+  );
   margin: 0 auto;
   padding: 4rem 0;
 }
@@ -70,7 +73,6 @@ dd {
 
 @media (max-width: 32rem) {
   .root {
-    width: min(48rem, calc(100% - 1rem));
     padding: 1.5rem 0;
   }
 

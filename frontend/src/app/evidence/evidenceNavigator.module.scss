@@ -1,7 +1,10 @@
 @use "../../styles/media";
 
 .root {
-  width: min(var(--content-width), calc(100% - 2rem));
+  width: min(
+    var(--content-width),
+    calc(100% - var(--page-gutter) - var(--page-gutter))
+  );
   margin: 0 auto;
   padding: 3rem 0;
 }
@@ -268,7 +271,6 @@ h2 {
 
 @include media.tablet {
   .root {
-    width: min(var(--content-width), calc(100% - 1rem));
     padding: 1.5rem 0;
   }
 
