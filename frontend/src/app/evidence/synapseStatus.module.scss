@@ -37,8 +37,8 @@
   top: 0;
   right: 0;
   z-index: 1;
-  width: 0.75rem;
-  height: 0.75rem;
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
   overflow: hidden;
   border: 0;
@@ -47,6 +47,23 @@
 }
 
 .unconfigured::before {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+  content: "!";
+}
+
+.unconfigured:hover::before,
+.unconfigured:focus-visible::before {
   display: none;
 }
 
@@ -58,11 +75,6 @@
   overflow: visible;
   border: 1px solid var(--color-danger);
   background: color-mix(in srgb, var(--color-danger) 14%, var(--color-surface));
-}
-
-.unconfigured:hover::before,
-.unconfigured:focus-visible::before {
-  display: block;
 }
 
 .unconfiguredLabel {
