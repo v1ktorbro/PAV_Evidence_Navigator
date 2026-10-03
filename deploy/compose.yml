@@ -4,6 +4,9 @@ services:
   backend:
     image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER is required}/pav-evidence-navigator-backend:${IMAGE_TAG:?IMAGE_TAG is required}
     restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8091
     env_file:
       - ./backend.env
     expose:
