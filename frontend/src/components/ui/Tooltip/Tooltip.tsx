@@ -9,11 +9,22 @@ import {
   Trigger,
   type TooltipContentProps,
 } from "@radix-ui/react-tooltip";
-import { memo, type ReactElement, type ReactNode } from "react";
+import {
+  cloneElement,
+  memo,
+  useState,
+  type MouseEventHandler,
+  type ReactElement,
+  type ReactNode,
+} from "react";
+
+interface ITooltipTrigger {
+  onClick?: MouseEventHandler<HTMLElement>;
+}
 
 interface ITooltip {
   children: ReactNode;
-  target: ReactElement;
+  target: ReactElement<ITooltipTrigger>;
   classes?: Partial<Record<"root" | "arrow", string>>;
   contentProps?: Pick<
     TooltipContentProps,
@@ -37,14 +48,25 @@ export const TooltipProvider = ({ children }: ITooltipProvider) => (
 );
 
 const Tooltip = ({ children, target, classes, contentProps }: ITooltip) => {
+  const [isOpen, setIsOpen] = useState(false);
   const rootClassName = [scss.root, classes?.root].filter(Boolean).join(" ");
   const arrowClassName = [scss.arrow, classes?.arrow]
     .filter(Boolean)
     .join(" ");
 
+  const handleTargetClick: MouseEventHandler<HTMLElement> = (event) => {
+    target.props.onClick?.(event);
+
+    if (!event.defaultPrevented) {
+      setIsOpen((wasOpen) => !wasOpen);
+    }
+  };
+
+  const trigger = cloneElement(target, { onClick: handleTargetClick });
+
   return (
-    <Root>
-      <Trigger asChild>{target}</Trigger>
+    <Root open={isOpen} onOpenChange={setIsOpen}>
+      <Trigger asChild>{trigger}</Trigger>
       <Portal>
         <Content {...contentProps} className={rootClassName}>
           {children}
