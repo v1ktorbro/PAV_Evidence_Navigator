@@ -24,3 +24,10 @@ Backend сохраняет REST-контракт на `/api`: `health`, `evidenc
 
 - Frontend: `cd frontend && npm run lint && npm run build`
 - Backend: `pytest backend/tests` в настроенном Python-окружении или проверка API внутри контейнера.
+
+## Production и CI/CD
+
+Проект разворачивается как один monorepo: React frontend и FastAPI backend
+собираются в отдельные образы, но публикуются и выкатываются одной версией
+коммита. Инструкции по первичному запуску VPS, настройке HTTPS и GitHub Actions
+находятся в [deploy/README.md](deploy/README.md).

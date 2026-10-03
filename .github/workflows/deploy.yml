@@ -1,0 +1,124 @@
+name: Build and deploy
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: pav-production
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/pav-evidence-navigator
+
+jobs:
+  test-backend:
+    name: Test backend
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r backend/requirements.txt
+      - run: pytest backend/tests
+
+  test-frontend:
+    name: Test frontend
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - working-directory: frontend
+        run: npm ci
+      - working-directory: frontend
+        run: npm run lint
+      - working-directory: frontend
+        run: npm run build
+
+  publish:
+    name: Publish container images
+    if: github.event_name == 'push'
+    needs:
+      - test-backend
+      - test-frontend
+    runs-on: ubuntu-24.04
+    outputs:
+      image_tag: ${{ steps.image-tag.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: image-tag
+        run: echo "value=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-backend:${{ steps.image-tag.outputs.value }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-frontend:${{ steps.image-tag.outputs.value }}
+
+  deploy:
+    name: Deploy to VPS
+    if: github.event_name == 'push'
+    needs: publish
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.VPS_DEPLOY_KEY }}
+      - name: Trust VPS host key
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
+      - name: Copy deployment configuration
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          ssh "$VPS_USER@$VPS_HOST" 'install -d -m 0700 /opt/pav'
+          scp deploy/compose.yml deploy/Caddyfile "$VPS_USER@$VPS_HOST:/opt/pav/"
+      - name: Authenticate VPS to GitHub Container Registry
+        env:
+          GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          test -n "$GHCR_PULL_TOKEN"
+          printf '%s' "$GHCR_PULL_TOKEN" | ssh "$VPS_USER@$VPS_HOST" 'docker login ghcr.io -u v1ktorbro --password-stdin'
+      - name: Pull and start the release
+        env:
+          IMAGE_TAG: ${{ needs.publish.outputs.image_tag }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          ssh "$VPS_USER@$VPS_HOST" "cd /opt/pav && IMAGE_TAG=$IMAGE_TAG docker compose --env-file .env pull && IMAGE_TAG=$IMAGE_TAG docker compose --env-file .env up -d --remove-orphans && docker image prune -af --filter 'until=168h' && docker logout ghcr.io"
+      - name: Verify API health
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: curl --fail --retry 12 --retry-delay 5 "http://$VPS_HOST/api/health"

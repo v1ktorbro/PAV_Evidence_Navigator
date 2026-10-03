@@ -1,0 +1,66 @@
+name: pav-evidence-navigator
+
+services:
+  backend:
+    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER is required}/pav-evidence-navigator-backend:${IMAGE_TAG:?IMAGE_TAG is required}
+    restart: unless-stopped
+    env_file:
+      - ./backend.env
+    expose:
+      - "8091"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8091/api/health', timeout=4)
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    networks:
+      - app
+
+  frontend:
+    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER is required}/pav-evidence-navigator-frontend:${IMAGE_TAG:?IMAGE_TAG is required}
+    restart: unless-stopped
+    expose:
+      - "80"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget --spider -q http://127.0.0.1/ || exit 1
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    networks:
+      - app
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    environment:
+      CADDY_SITE_ADDRESS: ${CADDY_SITE_ADDRESS:-:80}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
