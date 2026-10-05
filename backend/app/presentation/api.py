@@ -9,13 +9,21 @@ from backend.app.application.evidence_service import (
     EvidenceNotFoundError,
     EvidenceService,
 )
+from backend.app.application.quality_service import QualityService
 from backend.app.application.synapse_service import SynapseService
 from backend.app.config import settings
+from backend.app.infrastructure.control_question_repository import JsonControlQuestionRepository
 from backend.app.infrastructure.evidence_repository import JsonEvidenceRepository
 from backend.app.infrastructure.synapse_client import SynapseClient, SynapseError
 
 router = APIRouter(prefix="/api")
-evidence_service = EvidenceService(JsonEvidenceRepository())
+evidence_repository = JsonEvidenceRepository()
+evidence_service = EvidenceService(evidence_repository)
+quality_service = QualityService(
+    evidence_repository,
+    JsonControlQuestionRepository(),
+    evidence_service,
+)
 
 
 class AnalysisBody(BaseModel):
@@ -49,6 +57,16 @@ def evidence_by_id(evidence_id: str) -> dict[str, object]:
 @router.post("/analysis")
 def analysis(body: AnalysisBody) -> dict[str, Any]:
     return evidence_service.analyse(body.question, body.experiment_ids)
+
+
+@router.get("/quality/report")
+def quality_report() -> dict[str, Any]:
+    return quality_service.report()
+
+
+@router.get("/quality/control-questions")
+def control_question_report() -> dict[str, Any]:
+    return quality_service.control_question_report()
 
 
 @router.get("/synapse/config")

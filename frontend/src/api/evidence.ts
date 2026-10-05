@@ -3,6 +3,7 @@ import type {
   EvidenceFiltersValue,
   EvidenceItem,
   EvidenceResponse,
+  QualityReport,
   SynapseConfig,
   SynapseProject,
 } from "../assets/types/evidence";
@@ -62,6 +63,8 @@ export const getEvidenceItem = (evidenceId: string) =>
 
 export const getSynapseConfig = () =>
   request<SynapseConfig>("/api/synapse/config");
+
+export const getQualityReport = () => request<QualityReport>("/api/quality/report");
 
 export const createAnalysis = (question: string, experimentIds: string[]) =>
   request<AnalysisResponse>("/api/analysis", {

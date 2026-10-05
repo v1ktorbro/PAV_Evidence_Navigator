@@ -4,7 +4,13 @@ from typing import Any, Protocol
 
 from fastapi import HTTPException
 
-from backend.app.domain.evidence import brief_for_synapse, explain_selection, filter_evidence
+from backend.app.domain.evidence import (
+    brief_for_synapse,
+    evidence_answer,
+    explain_selection,
+    filter_evidence,
+    is_releasable,
+)
 
 
 class EvidenceNotFoundError(Exception):
@@ -27,7 +33,13 @@ class EvidenceService:
 
     def analyse(self, question: str, experiment_ids: list[str]) -> dict[str, Any]:
         rows = self._selected_rows(experiment_ids)
-        return {"question": question, "items": rows, "summary": explain_selection(rows), "synapse_prompt": brief_for_synapse(question, rows)}
+        return {
+            "question": question,
+            "items": rows,
+            "summary": explain_selection(rows),
+            "answer": evidence_answer(question, rows),
+            "synapse_prompt": brief_for_synapse(question, rows),
+        }
 
     def selected_rows(self, experiment_ids: list[str]) -> list[dict[str, Any]]:
         return self._selected_rows(experiment_ids)
@@ -35,12 +47,12 @@ class EvidenceService:
     def get_evidence(self, evidence_id: str) -> dict[str, object]:
         """Return one evidence record for its source-fragment viewer."""
         for row in self._repository.list():
-            if row["id"] == evidence_id:
+            if row["id"] == evidence_id and is_releasable(row):
                 return row
         raise EvidenceNotFoundError
 
     def _selected_rows(self, experiment_ids: list[str]) -> list[dict[str, Any]]:
-        rows = self._repository.list()
+        rows = [row for row in self._repository.list() if is_releasable(row)]
         if not experiment_ids:
             return rows
         selected = [row for row in rows if row["id"] in set(experiment_ids)]

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "CQ-001",
+    "question": "Какой результат подтверждён для ПАВ-A?",
+    "experiment_ids": ["LAB-001"],
+    "expected_experiment_ids": ["LAB-001"],
+    "expected_limited_experiment_ids": [],
+    "expected_direct_comparison_allowed": false
+  },
+  {
+    "id": "CQ-002",
+    "question": "Какое IFT зафиксировано в опыте ПАВ-B?",
+    "experiment_ids": ["LAB-002"],
+    "expected_experiment_ids": ["LAB-002"],
+    "expected_limited_experiment_ids": ["LAB-002"],
+    "expected_direct_comparison_allowed": false
+  },
+  {
+    "id": "CQ-003",
+    "question": "Какие ограничения есть у опыта ПАВ-C?",
+    "experiment_ids": ["LAB-003"],
+    "expected_experiment_ids": ["LAB-003"],
+    "expected_limited_experiment_ids": ["LAB-003"],
+    "expected_direct_comparison_allowed": false
+  },
+  {
+    "id": "CQ-004",
+    "question": "Какова адсорбция в опыте ПАВ-D?",
+    "experiment_ids": ["LAB-004"],
+    "expected_experiment_ids": ["LAB-004"],
+    "expected_limited_experiment_ids": [],
+    "expected_direct_comparison_allowed": false
+  },
+  {
+    "id": "CQ-005",
+    "question": "Какая вязкость установлена для ПАВ-F?",
+    "experiment_ids": ["LAB-006"],
+    "expected_experiment_ids": ["LAB-006"],
+    "expected_limited_experiment_ids": ["LAB-006"],
+    "expected_direct_comparison_allowed": false
+  },
+  {
+    "id": "CQ-006",
+    "question": "Можно ли напрямую ранжировать ПАВ-A и ПАВ-D?",
+    "experiment_ids": ["LAB-001", "LAB-004"],
+    "expected_experiment_ids": ["LAB-001", "LAB-004"],
+    "expected_limited_experiment_ids": [],
+    "expected_direct_comparison_allowed": false
+  }
+]

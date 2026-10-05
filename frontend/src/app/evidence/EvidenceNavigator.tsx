@@ -217,7 +217,12 @@ const EvidenceNavigator = () => {
             первоисточником.
           </p>
         </div>
-        <SynapseStatus config={synapseConfig} />
+        <div className={scss.headerActions}>
+          <a className={scss.qualityLink} href="/quality">
+            Контроль ТЗ
+          </a>
+          <SynapseStatus config={synapseConfig} />
+        </div>
       </header>
       <section className={scss.notice}>
         <strong>ПАВ (поверхностно-активные вещества)</strong> — это соединения,

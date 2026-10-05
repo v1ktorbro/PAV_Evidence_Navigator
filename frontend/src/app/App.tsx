@@ -1,6 +1,7 @@
 import EvidenceNavigator from "./evidence/EvidenceNavigator";
 import DataCompleteness from "./evidence/DataCompleteness";
 import SourceViewer from "./source/SourceViewer";
+import QualityDashboard from "./quality/QualityDashboard";
 
 const App = () => {
   const sourceMatch = window.location.pathname.match(/^\/source\/([^/]+)$/);
@@ -11,6 +12,10 @@ const App = () => {
 
   if (window.location.pathname === "/completeness") {
     return <DataCompleteness />;
+  }
+
+  if (window.location.pathname === "/quality") {
+    return <QualityDashboard />;
   }
 
   return <EvidenceNavigator />;

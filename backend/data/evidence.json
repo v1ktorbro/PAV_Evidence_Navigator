@@ -7,7 +7,8 @@
     "result": {"label": "дополнительная нефтеотдача", "value": 11.8, "unit": "% OOIP"},
     "comparability": {"status": "comparable", "reason": "Есть температура, минерализация, тип керна, проницаемость и методика."},
     "missing_fields": [],
-    "source": {"document": "Синтетический отчёт EOR-LAB-24-01", "location": "стр. 14, табл. 4", "excerpt": "При 75 °C и 45 г/л TDS дополнительная нефтеотдача составила 11,8 % OOIP.", "url": "/source/LAB-001"}
+    "source": {"document": "Синтетический отчёт EOR-LAB-24-01", "location": "стр. 14, табл. 4", "excerpt": "При 75 °C и 45 г/л TDS дополнительная нефтеотдача составила 11,8 % OOIP.", "url": "/source/LAB-001", "origin_type": "synthetic_demo"},
+    "quality": {"release_status": "released", "source_fragment_verified": true}
   },
   {
     "id": "LAB-002",
@@ -17,7 +18,8 @@
     "result": {"label": "межфазное натяжение", "value": 0.042, "unit": "мН/м"},
     "comparability": {"status": "limited", "reason": "Сопоставимо по температуре и минерализации, но это IFT-тест, а не core flood."},
     "missing_fields": ["режим вытеснения", "нефтеотдача"],
-    "source": {"document": "Синтетический отчёт EOR-LAB-24-02", "location": "стр. 7, рис. 3", "excerpt": "Минимальное IFT 0,042 мН/м зафиксировано при 70 °C и минерализации 38 г/л.", "url": "/source/LAB-002"}
+    "source": {"document": "Синтетический отчёт EOR-LAB-24-02", "location": "стр. 7, рис. 3", "excerpt": "Минимальное IFT 0,042 мН/м зафиксировано при 70 °C и минерализации 38 г/л.", "url": "/source/LAB-002", "origin_type": "synthetic_demo"},
+    "quality": {"release_status": "released", "source_fragment_verified": true}
   },
   {
     "id": "LAB-003",
@@ -27,7 +29,8 @@
     "result": {"label": "дополнительная нефтеотдача", "value": 8.6, "unit": "% OOIP"},
     "comparability": {"status": "limited", "reason": "Отсутствуют проницаемость и объём оторочка; прямое ранжирование с другими core flood ограничено."},
     "missing_fields": ["проницаемость", "объём оторочка"],
-    "source": {"document": "Синтетический отчёт EOR-LAB-24-03", "location": "стр. 21, табл. 6", "excerpt": "После химического вытеснения получено 8,6 % OOIP; параметры оторочка не зафиксированы.", "url": "/source/LAB-003"}
+    "source": {"document": "Синтетический отчёт EOR-LAB-24-03", "location": "стр. 21, табл. 6", "excerpt": "После химического вытеснения получено 8,6 % OOIP; параметры оторочка не зафиксированы.", "url": "/source/LAB-003", "origin_type": "synthetic_demo"},
+    "quality": {"release_status": "released", "source_fragment_verified": true}
   },
   {
     "id": "LAB-004",
@@ -37,7 +40,8 @@
     "result": {"label": "адсорбция ПАВ", "value": 0.31, "unit": "мг/г породы"},
     "comparability": {"status": "comparable", "reason": "Условия и методика описаны; сравнимо с другими измерениями адсорбции на карбонате."},
     "missing_fields": ["дополнительная нефтеотдача"],
-    "source": {"document": "Синтетический отчёт EOR-LAB-24-04", "location": "стр. 11, табл. 2", "excerpt": "Равновесная адсорбция на карбонатном керне составила 0,31 мг/г.", "url": "/source/LAB-004"}
+    "source": {"document": "Синтетический отчёт EOR-LAB-24-04", "location": "стр. 11, табл. 2", "excerpt": "Равновесная адсорбция на карбонатном керне составила 0,31 мг/г.", "url": "/source/LAB-004", "origin_type": "synthetic_demo"},
+    "quality": {"release_status": "released", "source_fragment_verified": true}
   },
   {
     "id": "LAB-005",
@@ -47,7 +51,8 @@
     "result": {"label": "заявленный эффект", "value": 15, "unit": "%"},
     "comparability": {"status": "not_comparable", "reason": "Нет описания нефти, керна, методики и определения показателя."},
     "missing_fields": ["pH", "проницаемость", "тип нефти", "методика", "определение метрики"],
-    "source": {"document": "Синтетическая презентация EOR-IDEA-05", "location": "слайд 9", "excerpt": "Указано «эффект 15 %» без условий и исходных данных."}
+    "source": {"document": "Синтетическая презентация EOR-IDEA-05", "location": "слайд 9", "excerpt": "Указано «эффект 15 %» без условий и исходных данных.", "origin_type": "synthetic_demo"},
+    "quality": {"release_status": "quarantined", "source_fragment_verified": false, "quarantine_reason": "Числовой факт не выпускается: нет проверяемой ссылки на фрагмент и методики."}
   },
   {
     "id": "LAB-006",
@@ -57,6 +62,7 @@
     "result": {"label": "вязкость при 10 с⁻¹", "value": 18.2, "unit": "мПа·с"},
     "comparability": {"status": "limited", "reason": "Условия хорошо описаны, но реология не доказывает нефтеотдачу без core flood."},
     "missing_fields": ["нефтеотдача", "перепад давления в керне"],
-    "source": {"document": "Синтетический отчёт EOR-LAB-24-06", "location": "стр. 8, рис. 2", "excerpt": "При 80 °C вязкость составила 18,2 мПа·с при скорости сдвига 10 с⁻¹.", "url": "/source/LAB-006"}
+    "source": {"document": "Синтетический отчёт EOR-LAB-24-06", "location": "стр. 8, рис. 2", "excerpt": "При 80 °C вязкость составила 18,2 мПа·с при скорости сдвига 10 с⁻¹.", "url": "/source/LAB-006", "origin_type": "synthetic_demo"},
+    "quality": {"release_status": "released", "source_fragment_verified": true}
   }
 ]

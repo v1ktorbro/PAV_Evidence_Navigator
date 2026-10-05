@@ -41,7 +41,47 @@ export interface AnalysisResponse {
   question: string;
   items: EvidenceItem[];
   summary: EvidenceSummary;
+  answer: {
+    confirmed_facts: Array<{
+      experiment_id: string;
+      metric: string;
+      value: number;
+      unit: string;
+      conditions: Record<string, string | number | null>;
+      citation: { document: string; location: string; url: string };
+    }>;
+    limitations: Array<{ experiment_id: string; reason: string }>;
+    external_escalation: boolean;
+    retry_policy: string;
+  };
   synapse_prompt: string;
+}
+
+export interface QualityGate {
+  value?: boolean;
+  value_pct?: number;
+  threshold_pct?: number;
+  passed: boolean;
+  description?: string;
+  released_records?: number;
+  audited_records?: number;
+  checked_questions?: number;
+}
+
+export interface QualityReport {
+  acceptance_gates: {
+    all_released_numeric_facts_traceable: QualityGate;
+    extraction_completeness: QualityGate;
+    control_answer_accuracy: QualityGate;
+    repeat_without_escalation: QualityGate;
+  };
+  quarantined_records: Array<{
+    id: string;
+    gaps: string[];
+    reason: string;
+  }>;
+  production_ready: boolean;
+  production_blocker: string;
 }
 export interface SynapseConfig {
   configured: boolean;

@@ -18,6 +18,27 @@
   margin-bottom: 2rem;
 }
 
+.headerActions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.qualityLink {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.qualityLink:hover {
+  color: var(--color-bg);
+  background: var(--color-accent);
+}
+
 h2 {
   margin-top: 0.25rem;
   font-size: 1.375rem;
