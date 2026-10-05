@@ -25,7 +25,7 @@
   align-items: center;
 }
 
-.qualityLink {
+.navigationLink {
   padding: 0.5rem 0.75rem;
   color: var(--color-accent);
   border: 1px solid var(--color-accent);
@@ -34,7 +34,7 @@
   font-weight: 700;
 }
 
-.qualityLink:hover {
+.navigationLink:hover {
   color: var(--color-bg);
   background: var(--color-accent);
 }
