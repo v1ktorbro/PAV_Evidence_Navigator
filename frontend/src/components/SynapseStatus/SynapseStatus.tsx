@@ -61,16 +61,20 @@ const SynapseStatus = ({
         aria-controls="synapse-status-details"
         onClick={() => setIsExpanded((current) => !current)}
       >
-        <span className={scss.indicator} aria-hidden="true" />
-        <span className={scss.summary}>
-          <strong>{title}</strong>
-          <span>
-            {isConfigured && !isLoading && !hasError
-              ? `Режим: ${getApprovalModeLabel(config?.approval_mode ?? "")}`
-              : description}
+        <span className={scss.triggerContent}>
+          <span className={scss.indicator} aria-hidden="true" />
+          <span className={scss.summary}>
+            <strong>{title}</strong>
+            <span>
+              {isConfigured && !isLoading && !hasError
+                ? `Режим: ${getApprovalModeLabel(
+                    config?.approval_mode ?? "",
+                  )}`
+                : description}
+            </span>
           </span>
+          <span className={scss.expandIcon} aria-hidden="true" />
         </span>
-        <span className={scss.expandIcon} aria-hidden="true" />
       </button>
       {isExpanded && (
         <div className={scss.details} id="synapse-status-details">

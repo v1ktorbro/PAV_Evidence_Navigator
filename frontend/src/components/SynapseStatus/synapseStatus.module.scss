@@ -1,33 +1,39 @@
-@use "../../styles/media";
 @use "../../styles/mixin";
 
 .root {
   position: fixed;
-  right: 1.5rem;
-  bottom: 1.5rem;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: var(--z-status);
-  width: min(25rem, calc(100vw - 3rem));
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  width: 100%;
+  border-top: 1px solid var(--color-border);
   background: color-mix(in srgb, var(--color-surface) 94%, transparent);
-  box-shadow: var(--shadow-panel);
+  box-shadow: 0 -0.75rem 2rem rgba(0, 0, 0, 0.14);
   backdrop-filter: blur(0.75rem);
 }
 
 .trigger {
   width: 100%;
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 0;
   color: var(--color-text);
   background: transparent;
   border: 0;
-  border-radius: inherit;
   cursor: pointer;
   text-align: left;
 
   @include mixin.transition(background);
+}
+
+.triggerContent {
+  width: min(
+    var(--content-width),
+    calc(100% - var(--page-gutter) - var(--page-gutter))
+  );
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 0 auto;
 }
 
 .trigger:hover {
@@ -84,11 +90,19 @@
   transform: rotate(225deg) translateY(-0.125rem);
 }
 
+.expanded .trigger {
+  border-bottom: 1px solid var(--color-border);
+}
+
 .details {
+  width: min(
+    var(--content-width),
+    calc(100% - var(--page-gutter) - var(--page-gutter))
+  );
   display: grid;
   gap: 0.75rem;
-  padding: 0 1rem 1rem;
-  border-top: 1px solid var(--color-border);
+  margin: 0 auto;
+  padding: 0 0 1rem;
   color: var(--color-text-muted);
   font-size: 0.8125rem;
 }
@@ -170,14 +184,6 @@
   50% {
     opacity: 0.45;
     transform: scale(0.75);
-  }
-}
-
-@include media.tablet {
-  .root {
-    right: 1rem;
-    bottom: 1rem;
-    width: min(25rem, calc(100vw - 2rem));
   }
 }
 
