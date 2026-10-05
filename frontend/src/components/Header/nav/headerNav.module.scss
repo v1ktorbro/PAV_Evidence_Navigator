@@ -1,0 +1,25 @@
+@use "../../../styles/media";
+
+.wrapNav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.nav {
+  height: 100%;
+  display: flex;
+}
+
+.list {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  list-style: none;
+}
+
+@include media.tablet {
+  .wrapNav {
+    display: none;
+  }
+}

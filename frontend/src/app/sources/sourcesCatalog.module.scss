@@ -35,19 +35,6 @@
   margin-top: 0.75rem;
 }
 
-.backLink {
-  flex: 0 0 auto;
-  padding: 0.625rem 0.875rem;
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent);
-  border-radius: var(--radius-sm);
-}
-
-.backLink:hover {
-  color: var(--color-bg);
-  background: var(--color-accent);
-}
-
 .panel,
 .notice,
 .card {
@@ -156,10 +143,6 @@
 @media (max-width: 48rem) {
   .header {
     display: grid;
-  }
-
-  .backLink {
-    justify-self: start;
   }
 
   .list {

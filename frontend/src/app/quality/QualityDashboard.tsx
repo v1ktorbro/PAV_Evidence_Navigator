@@ -69,9 +69,6 @@ const QualityDashboard = () => {
             вопросов при каждом открытии страницы.
           </p>
         </div>
-        <a className={scss.backLink} href="/">
-          К доказательной базе
-        </a>
       </header>
 
       {report.production_blocker && (

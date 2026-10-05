@@ -1,0 +1,43 @@
+.root {
+  height: 3rem;
+  padding-inline: 0.5rem;
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+  position: relative;
+  transition: color 0.15s ease-in-out;
+}
+
+.root::after {
+  width: 0;
+  height: 0.125rem;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-accent);
+  content: "";
+  transition: width 0.2s ease-in-out;
+}
+
+.root:hover,
+.root:focus-visible,
+.active {
+  color: var(--color-text);
+}
+
+.root:hover::after,
+.root:focus-visible::after,
+.active::after {
+  width: calc(100% - 1rem);
+}
+
+.root:focus-visible {
+  outline: 0.125rem solid var(--color-accent);
+  outline-offset: -0.125rem;
+  border-radius: var(--radius-sm);
+}

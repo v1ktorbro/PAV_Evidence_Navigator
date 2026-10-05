@@ -60,9 +60,6 @@ const SourcesCatalog = () => {
             инженерными фактами без проверки.
           </p>
         </div>
-        <a className={scss.backLink} href="/">
-          К лабораторным данным
-        </a>
       </header>
 
       {!response && !error && (
