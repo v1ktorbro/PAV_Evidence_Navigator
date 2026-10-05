@@ -6,17 +6,14 @@ import {
   createAnalysis,
   createSynapseProject,
   getEvidence,
-  getSynapseConfig,
 } from "../../api/evidence";
 import type {
   EvidenceResponse,
   EvidenceSummary,
-  SynapseConfig,
 } from "../../assets/types/evidence";
 import Button from "../../components/ui/Button/Button";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import { getAnalysisFlow } from "./analysisFlow";
-import SynapseStatus from "./SynapseStatus";
 
 interface AnalysisResultValue {
   summary: EvidenceSummary;
@@ -30,7 +27,6 @@ type Result =
 const DataCompleteness = () => {
   const [flow] = useState(getAnalysisFlow);
   const [evidence, setEvidence] = useState<EvidenceResponse>();
-  const [synapseConfig, setSynapseConfig] = useState<SynapseConfig>();
   const [result, setResult] = useState<Result>();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -57,7 +53,6 @@ const DataCompleteness = () => {
     };
 
     void loadDataCompleteness();
-    void getSynapseConfig().then(setSynapseConfig).catch(() => undefined);
   }, [flow]);
 
   const selectedItems = useMemo(() => {
@@ -166,12 +161,7 @@ const DataCompleteness = () => {
             выбранных опытов перед подготовкой вывода.
           </p>
         </div>
-        <div
-          className={`${scss.headerActions} ${
-            synapseConfig?.configured ? "" : scss.synapseUnavailable
-          }`}
-        >
-          <SynapseStatus config={synapseConfig} />
+        <div className={scss.headerActions}>
           <Button
             className={scss.changeQuestionButton}
             variant="secondary"

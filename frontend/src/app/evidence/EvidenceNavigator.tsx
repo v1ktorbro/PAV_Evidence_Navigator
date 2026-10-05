@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 
 import {
   getEvidence,
-  getSynapseConfig,
 } from "../../api/evidence";
 import type {
   EvidenceFiltersValue,
   EvidenceResponse,
-  SynapseConfig,
 } from "../../assets/types/evidence";
 import AnalysisPanel from "../../components/AnalysisPanel/AnalysisPanel";
 import EvidenceFilters from "../../components/EvidenceFilters/EvidenceFilters";
@@ -17,7 +15,6 @@ import EvidenceTable from "../../components/EvidenceTable/EvidenceTable";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import Tooltip from "../../components/ui/Tooltip/Tooltip";
 import { getAnalysisFlow, saveAnalysisFlow } from "./analysisFlow";
-import SynapseStatus from "./SynapseStatus";
 const INITIAL_FILTERS: EvidenceFiltersValue = {
   minTemperature: "",
   maxTemperature: "",
@@ -77,7 +74,6 @@ const EvidenceNavigator = () => {
     restoredFlow?.filters ?? INITIAL_FILTERS,
   );
   const [evidence, setEvidence] = useState<EvidenceResponse>();
-  const [synapseConfig, setSynapseConfig] = useState<SynapseConfig>();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [question, setQuestion] = useState(
     restoredFlow?.question ?? DEFAULT_QUESTION,
@@ -128,9 +124,6 @@ const EvidenceNavigator = () => {
     };
 
     void initialise();
-    void getSynapseConfig()
-      .then(setSynapseConfig)
-      .catch(() => undefined);
   }, [restoredFlow]);
 
   const ensureQuestion = () => {
@@ -213,7 +206,6 @@ const EvidenceNavigator = () => {
             первоисточником.
           </p>
         </div>
-        <SynapseStatus config={synapseConfig} />
       </header>
       <section className={scss.notice}>
         <strong>ПАВ (поверхностно-активные вещества)</strong> — это соединения,
