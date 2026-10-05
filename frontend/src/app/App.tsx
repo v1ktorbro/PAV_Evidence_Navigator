@@ -11,6 +11,8 @@ import EvidenceNavigator from "./evidence/EvidenceNavigator";
 import DataCompleteness from "./evidence/DataCompleteness";
 import SourceViewer from "./source/SourceViewer";
 import QualityDashboard from "./quality/QualityDashboard";
+import EvidenceReviewQueue from "./reviews/EvidenceReviewQueue";
+import EvidenceExtractionForm from "./sources/EvidenceExtractionForm";
 import SourcesCatalog from "./sources/SourcesCatalog";
 
 const App = () => {
@@ -43,6 +45,10 @@ const App = () => {
     screen = <DataCompleteness />;
   } else if (window.location.pathname === "/quality") {
     screen = <QualityDashboard />;
+  } else if (window.location.pathname === "/reviews") {
+    screen = <EvidenceReviewQueue />;
+  } else if (window.location.pathname === "/sources/extract") {
+    screen = <EvidenceExtractionForm />;
   } else if (window.location.pathname === "/sources") {
     screen = <SourcesCatalog />;
   } else {

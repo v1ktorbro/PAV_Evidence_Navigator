@@ -2,6 +2,9 @@ import type {
   AnalysisResponse,
   EvidenceFiltersValue,
   EvidenceItem,
+  EvidenceReview,
+  EvidenceReviewsResponse,
+  EvidenceReviewSubmission,
   EvidenceResponse,
   QualityReport,
   PublicSourcesResponse,
@@ -69,6 +72,22 @@ export const getQualityReport = () => request<QualityReport>("/api/quality/repor
 
 export const getPublicSources = () =>
   request<PublicSourcesResponse>("/api/public-sources");
+
+export const getEvidenceReviews = () =>
+  request<EvidenceReviewsResponse>("/api/evidence-reviews");
+
+export const createEvidenceReview = (submission: EvidenceReviewSubmission) =>
+  request<EvidenceReview>("/api/evidence-reviews", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(submission),
+  });
+
+export const approveEvidenceReview = (reviewId: string) =>
+  request<EvidenceReview>(
+    `/api/evidence-reviews/${encodeURIComponent(reviewId)}/approve`,
+    { method: "POST" },
+  );
 
 export const createAnalysis = (question: string, experimentIds: string[]) =>
   request<AnalysisResponse>("/api/analysis", {

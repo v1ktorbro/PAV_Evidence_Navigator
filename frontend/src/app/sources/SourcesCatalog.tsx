@@ -3,7 +3,10 @@ import scss from "./sourcesCatalog.module.scss";
 import { useEffect, useState } from "react";
 
 import { getPublicSources } from "../../api/evidence";
-import type { PublicSourcesResponse } from "../../assets/types/evidence";
+import type {
+  PublicSource,
+  PublicSourcesResponse,
+} from "../../assets/types/evidence";
 
 const reviewLabel = {
   context_only: "Справочный источник",
@@ -30,6 +33,15 @@ const roleLabel = {
   review: "Обзор",
   case_context: "Контекст кейса",
   needs_classification: "Требуется классификация",
+};
+
+const getExtractionHref = (source: PublicSource) => {
+  const query = new URLSearchParams({
+    sourceId: source.id,
+    sourceTitle: source.title,
+    sourceUrl: source.url,
+  });
+  return `/sources/extract?${query}`;
 };
 
 const SourcesCatalog = () => {
@@ -108,9 +120,14 @@ const SourcesCatalog = () => {
                   {source.published ? ` · ${source.published}` : ""}
                 </p>
                 <p>{source.relevance}</p>
-                <a href={source.url} target="_blank" rel="noreferrer">
-                  Открыть источник
-                </a>
+                <div className={scss.actions}>
+                  <a href={source.url} target="_blank" rel="noreferrer">
+                    Открыть источник
+                  </a>
+                  <a className={scss.extractLink} href={getExtractionHref(source)}>
+                    Извлечь опыт
+                  </a>
+                </div>
               </article>
             ))}
           </section>

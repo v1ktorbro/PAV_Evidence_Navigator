@@ -2,12 +2,18 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
 from backend.app.application.evidence_service import (
     EvidenceNotFoundError,
     EvidenceService,
+)
+from backend.app.application.evidence_review_service import (
+    EvidenceReviewNotFoundError,
+    EvidenceReviewService,
+    EvidenceReviewStateError,
+    EvidenceReviewValidationError,
 )
 from backend.app.application.quality_service import QualityService
 from backend.app.application.public_source_service import PublicSourceService
@@ -15,6 +21,7 @@ from backend.app.application.synapse_service import SynapseService
 from backend.app.config import settings
 from backend.app.infrastructure.control_question_repository import JsonControlQuestionRepository
 from backend.app.infrastructure.evidence_repository import JsonEvidenceRepository
+from backend.app.infrastructure.evidence_review_repository import JsonEvidenceReviewRepository
 from backend.app.infrastructure.public_source_gateway import HttpPublicSourceGateway
 from backend.app.infrastructure.public_source_repository import JsonPublicSourceRepository
 from backend.app.infrastructure.synapse_client import SynapseClient, SynapseError
@@ -22,6 +29,7 @@ from backend.app.infrastructure.synapse_client import SynapseClient, SynapseErro
 router = APIRouter(prefix="/api")
 evidence_repository = JsonEvidenceRepository()
 evidence_service = EvidenceService(evidence_repository)
+evidence_review_service = EvidenceReviewService(JsonEvidenceReviewRepository())
 quality_service = QualityService(
     evidence_repository,
     JsonControlQuestionRepository(),
@@ -36,6 +44,45 @@ public_source_service = PublicSourceService(
 class AnalysisBody(BaseModel):
     question: str = Field(min_length=5, max_length=1200)
     experiment_ids: list[str] = Field(default_factory=list, max_length=30)
+
+
+class SourceReferenceBody(BaseModel):
+    id: str = Field(min_length=1, max_length=200)
+    title: str = Field(min_length=1, max_length=1200)
+    url: str = Field(min_length=1, max_length=2000)
+
+
+class FormulationBody(BaseModel):
+    name: str = Field(min_length=1, max_length=500)
+    surfactant_class: str = Field(min_length=1, max_length=200)
+    concentration_wt_pct: float = Field(ge=0)
+
+
+class ConditionsBody(BaseModel):
+    temperature_c: float
+    salinity_g_l: float = Field(ge=0)
+    rock_type: str = Field(min_length=1, max_length=200)
+    permeability_md: float | None = Field(default=None, ge=0)
+
+
+class ResultBody(BaseModel):
+    label: str = Field(min_length=1, max_length=300)
+    value: float
+    unit: str = Field(min_length=1, max_length=100)
+
+
+class CitationBody(BaseModel):
+    location: str = Field(min_length=1, max_length=1000)
+    excerpt: str = Field(min_length=1, max_length=5000)
+
+
+class EvidenceReviewBody(BaseModel):
+    source: SourceReferenceBody
+    formulation: FormulationBody
+    conditions: ConditionsBody
+    method: str = Field(min_length=5, max_length=5000)
+    result: ResultBody
+    citation: CitationBody
 
 
 def synapse_service() -> SynapseService:
@@ -79,6 +126,28 @@ def control_question_report() -> dict[str, Any]:
 @router.get("/public-sources")
 def public_sources() -> dict[str, Any]:
     return public_source_service.list_current_sources()
+
+
+@router.get("/evidence-reviews")
+def evidence_reviews() -> dict[str, Any]:
+    return {"items": evidence_review_service.list_reviews()}
+
+
+@router.post("/evidence-reviews", status_code=status.HTTP_201_CREATED)
+def submit_evidence_review(body: EvidenceReviewBody) -> dict[str, Any]:
+    return evidence_review_service.submit(body.model_dump())
+
+
+@router.post("/evidence-reviews/{review_id}/approve")
+def approve_evidence_review(review_id: str) -> dict[str, Any]:
+    try:
+        return evidence_review_service.approve(review_id)
+    except EvidenceReviewNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="Заявка на проверку не найдена.") from exc
+    except EvidenceReviewStateError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except EvidenceReviewValidationError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @router.get("/synapse/config")

@@ -1,0 +1,153 @@
+.root {
+  width: min(
+    58rem,
+    calc(100% - var(--page-gutter) - var(--page-gutter))
+  );
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+.header,
+.form,
+.panel,
+.success {
+  display: grid;
+  gap: 1rem;
+}
+
+.eyebrow {
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.header h1,
+.panel h1,
+.success h2 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.2;
+}
+
+.lead,
+.muted {
+  color: var(--color-text-muted);
+}
+
+.source,
+.panel,
+.success,
+.form {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+}
+
+.source {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.source span {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.source a,
+.backLink,
+.formActions a {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.form {
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+}
+
+.form fieldset {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+.form legend {
+  margin-bottom: 0.75rem;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.form label {
+  display: grid;
+  gap: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.fullField {
+  grid-column: 1 / -1;
+}
+
+.form input,
+.form textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  padding: 0.75rem;
+}
+
+.form textarea {
+  resize: vertical;
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.error {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.panel,
+.success {
+  padding: 1.5rem;
+}
+
+.success {
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 40rem) {
+  .root {
+    padding: 1.5rem 0;
+  }
+
+  .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullField {
+    grid-column: auto;
+  }
+}

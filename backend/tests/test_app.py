@@ -1,8 +1,59 @@
 from fastapi.testclient import TestClient
 
+from backend.app.application.evidence_review_service import EvidenceReviewService
 from backend.app.main import app
+from backend.app.presentation import api
 
 client = TestClient(app)
+
+
+class FakeReviewRepository:
+    def __init__(self):
+        self.reviews = []
+
+    def list(self):
+        return self.reviews
+
+    def add(self, review):
+        self.reviews.append(review)
+
+    def replace(self, review):
+        for index, current in enumerate(self.reviews):
+            if current["id"] == review["id"]:
+                self.reviews[index] = review
+                return
+        raise KeyError(review["id"])
+
+
+def review_submission_body():
+    return {
+        "source": {
+            "id": "public-source-1",
+            "title": "Открытая статья о ПАВ",
+            "url": "https://example.test/article",
+        },
+        "formulation": {
+            "name": "ПАВ-X + полимер",
+            "surfactant_class": "анионный",
+            "concentration_wt_pct": 0.4,
+        },
+        "conditions": {
+            "temperature_c": 80,
+            "salinity_g_l": 45,
+            "rock_type": "карбонат",
+            "permeability_md": 120,
+        },
+        "method": "Core flood после заводнения с химической оторочкой.",
+        "result": {
+            "label": "дополнительная нефтеотдача",
+            "value": 9.2,
+            "unit": "% OOIP",
+        },
+        "citation": {
+            "location": "стр. 10, табл. 3",
+            "excerpt": "При 80 °C дополнительная нефтеотдача составила 9,2 % OOIP.",
+        },
+    }
 
 
 def test_health_reports_local_corpus():
@@ -34,6 +85,28 @@ def test_evidence_by_id_returns_source_fragment():
 def test_unknown_evidence_returns_not_found():
     response = client.get("/api/evidence/UNKNOWN")
     assert response.status_code == 404
+
+
+def test_submitted_experiment_is_released_only_after_review_confirmation():
+    original_service = api.evidence_review_service
+    api.evidence_review_service = EvidenceReviewService(FakeReviewRepository())
+    try:
+        submitted = client.post("/api/evidence-reviews", json=review_submission_body())
+        assert submitted.status_code == 201
+        assert submitted.json()["review"]["status"] == "pending_review"
+
+        queue = client.get("/api/evidence-reviews")
+        assert queue.status_code == 200
+        assert queue.json()["items"][0]["id"] == submitted.json()["id"]
+
+        approved = client.post(
+            f"/api/evidence-reviews/{submitted.json()['id']}/approve"
+        )
+        assert approved.status_code == 200
+        assert approved.json()["review"]["status"] == "released"
+        assert approved.json()["quality"]["source_fragment_verified"] is True
+    finally:
+        api.evidence_review_service = original_service
 
 
 def test_untraceable_numeric_fact_is_quarantined_from_evidence_api():

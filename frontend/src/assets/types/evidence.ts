@@ -116,6 +116,36 @@ export interface PublicSourcesResponse {
   discovery_mode: string;
   safety_notice: string;
 }
+
+export interface EvidenceReviewSubmission {
+  source: {
+    id: string;
+    title: string;
+    url: string;
+  };
+  formulation: EvidenceItem["formulation"];
+  conditions: EvidenceItem["conditions"];
+  method: string;
+  result: EvidenceItem["result"];
+  citation: {
+    location: string;
+    excerpt: string;
+  };
+}
+
+export interface EvidenceReview extends EvidenceItem {
+  method: string;
+  review: {
+    status: "pending_review" | "released";
+    submitted_at: string;
+    approved_at?: string;
+  };
+}
+
+export interface EvidenceReviewsResponse {
+  items: EvidenceReview[];
+}
+
 export interface SynapseConfig {
   configured: boolean;
   approval_mode: string;

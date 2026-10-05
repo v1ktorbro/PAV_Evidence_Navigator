@@ -8,6 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA_FILE = ROOT / "backend" / "data" / "evidence.json"
+EVIDENCE_REVIEWS_FILE = ROOT / "backend" / "data" / "evidence_reviews.json"
 CONTROL_QUESTIONS_FILE = ROOT / "backend" / "data" / "control_questions.json"
 PUBLIC_SOURCES_FILE = ROOT / "backend" / "data" / "public_sources.json"
 
