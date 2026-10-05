@@ -83,6 +83,39 @@ export interface QualityReport {
   production_ready: boolean;
   production_blocker: string;
 }
+
+export interface PublicSource {
+  id: string;
+  title: string;
+  publisher: string;
+  source_type: string;
+  access_level: "open" | "partial" | "metadata_only" | "request";
+  url: string;
+  relevance: string;
+  review_status:
+    | "context_only"
+    | "candidate_for_extraction"
+    | "needs_full_text"
+    | "needs_review";
+  origin_type: string;
+  source_scope: "general_evidence" | "tatneft_case";
+  evidence_role:
+    | "laboratory_data"
+    | "methodology"
+    | "review"
+    | "case_context"
+    | "needs_classification";
+  availability?: "available" | "unavailable" | "unknown";
+  published?: string;
+  checked_at?: string;
+}
+
+export interface PublicSourcesResponse {
+  items: PublicSource[];
+  refreshed_at: string;
+  discovery_mode: string;
+  safety_notice: string;
+}
 export interface SynapseConfig {
   configured: boolean;
   approval_mode: string;

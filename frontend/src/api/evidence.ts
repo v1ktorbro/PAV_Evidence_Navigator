@@ -4,6 +4,7 @@ import type {
   EvidenceItem,
   EvidenceResponse,
   QualityReport,
+  PublicSourcesResponse,
   SynapseConfig,
   SynapseProject,
 } from "../assets/types/evidence";
@@ -65,6 +66,9 @@ export const getSynapseConfig = () =>
   request<SynapseConfig>("/api/synapse/config");
 
 export const getQualityReport = () => request<QualityReport>("/api/quality/report");
+
+export const getPublicSources = () =>
+  request<PublicSourcesResponse>("/api/public-sources");
 
 export const createAnalysis = (question: string, experimentIds: string[]) =>
   request<AnalysisResponse>("/api/analysis", {

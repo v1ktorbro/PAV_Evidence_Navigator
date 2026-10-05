@@ -2,10 +2,15 @@ import scss from "./evidenceNavigator.module.scss";
 
 import { useEffect, useState } from "react";
 
-import { getEvidence, getSynapseConfig } from "../../api/evidence";
+import {
+  getEvidence,
+  getPublicSources,
+  getSynapseConfig,
+} from "../../api/evidence";
 import type {
   EvidenceFiltersValue,
   EvidenceResponse,
+  PublicSourcesResponse,
   SynapseConfig,
 } from "../../assets/types/evidence";
 import AnalysisPanel from "../../components/AnalysisPanel/AnalysisPanel";
@@ -15,6 +20,7 @@ import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import Tooltip from "../../components/ui/Tooltip/Tooltip";
 import { getAnalysisFlow, saveAnalysisFlow } from "./analysisFlow";
 import SynapseStatus from "./SynapseStatus";
+import PublicSources from "./PublicSources";
 const INITIAL_FILTERS: EvidenceFiltersValue = {
   minTemperature: "",
   maxTemperature: "",
@@ -75,6 +81,8 @@ const EvidenceNavigator = () => {
   );
   const [evidence, setEvidence] = useState<EvidenceResponse>();
   const [synapseConfig, setSynapseConfig] = useState<SynapseConfig>();
+  const [publicSources, setPublicSources] = useState<PublicSourcesResponse>();
+  const [publicSourcesError, setPublicSourcesError] = useState<string>();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [question, setQuestion] = useState(
     restoredFlow?.question ?? DEFAULT_QUESTION,
@@ -128,6 +136,15 @@ const EvidenceNavigator = () => {
     void getSynapseConfig()
       .then(setSynapseConfig)
       .catch(() => undefined);
+    void getPublicSources()
+      .then(setPublicSources)
+      .catch((error) =>
+        setPublicSourcesError(
+          error instanceof Error
+            ? error.message
+            : "Неизвестная ошибка поиска.",
+        ),
+      );
   }, [restoredFlow]);
 
   const ensureQuestion = () => {
@@ -230,6 +247,7 @@ const EvidenceNavigator = () => {
         Стенд помогает инженеру оценивать лабораторные доказательства; он не
         предназначен для выбора химического состава для закачки.
       </section>
+      <PublicSources response={publicSources} error={publicSourcesError} />
       <EvidenceFilters
         value={filters}
         onChange={setFilters}

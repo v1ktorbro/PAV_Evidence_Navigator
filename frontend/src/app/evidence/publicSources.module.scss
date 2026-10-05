@@ -1,0 +1,136 @@
+.root {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+}
+
+.heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.heading > span {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+}
+
+.eyebrow {
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heading h2 {
+  margin-top: 0.25rem;
+  font-size: 1.375rem;
+}
+
+.notice,
+.muted,
+.publisher,
+.safetyNotice {
+  color: var(--color-text-muted);
+}
+
+.notice,
+.safetyNotice {
+  margin-top: 1rem;
+}
+
+.error {
+  margin-top: 1rem;
+  color: var(--color-danger);
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.review,
+.access,
+.scope,
+.role,
+.unavailable {
+  display: inline-flex;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.review {
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+
+.access {
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.scope {
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 14%, transparent);
+}
+
+.role {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+}
+
+.unavailable {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+}
+
+.list h3 {
+  font-size: 1rem;
+}
+
+.list a {
+  align-self: end;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.list a:hover {
+  color: var(--color-accent-hover);
+}
+
+.safetyNotice {
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 48rem) {
+  .list {
+    grid-template-columns: 1fr;
+  }
+}

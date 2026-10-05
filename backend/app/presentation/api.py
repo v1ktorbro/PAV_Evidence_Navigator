@@ -10,10 +10,13 @@ from backend.app.application.evidence_service import (
     EvidenceService,
 )
 from backend.app.application.quality_service import QualityService
+from backend.app.application.public_source_service import PublicSourceService
 from backend.app.application.synapse_service import SynapseService
 from backend.app.config import settings
 from backend.app.infrastructure.control_question_repository import JsonControlQuestionRepository
 from backend.app.infrastructure.evidence_repository import JsonEvidenceRepository
+from backend.app.infrastructure.public_source_gateway import HttpPublicSourceGateway
+from backend.app.infrastructure.public_source_repository import JsonPublicSourceRepository
 from backend.app.infrastructure.synapse_client import SynapseClient, SynapseError
 
 router = APIRouter(prefix="/api")
@@ -23,6 +26,10 @@ quality_service = QualityService(
     evidence_repository,
     JsonControlQuestionRepository(),
     evidence_service,
+)
+public_source_service = PublicSourceService(
+    JsonPublicSourceRepository(),
+    HttpPublicSourceGateway(),
 )
 
 
@@ -67,6 +74,11 @@ def quality_report() -> dict[str, Any]:
 @router.get("/quality/control-questions")
 def control_question_report() -> dict[str, Any]:
     return quality_service.control_question_report()
+
+
+@router.get("/public-sources")
+def public_sources() -> dict[str, Any]:
+    return public_source_service.list_current_sources()
 
 
 @router.get("/synapse/config")
