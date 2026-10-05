@@ -176,13 +176,6 @@ const EvidenceNavigator = () => {
       <header className={scss.header}>
         <div>
           <div className={scss.brand}>
-            <a
-              className={scss.logoLink}
-              href="/"
-              aria-label="Вернуться на главную"
-            >
-              <IconRenderer className={scss.logo} icon="pavLogo" />
-            </a>
             <div className={scss.brandContent}>
               <p className={scss.eyebrow}>
                 <span className={scss.eyebrowContent}>

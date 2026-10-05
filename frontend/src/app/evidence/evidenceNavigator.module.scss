@@ -69,12 +69,6 @@ h2 {
 }
 
 .brand {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.brandContent {
   min-width: 0;
 }
 
@@ -87,23 +81,6 @@ h2 {
   max-width: 42rem;
   margin-top: 0.75rem;
   color: var(--color-text-muted);
-}
-
-.logoLink {
-  display: block;
-  flex: 0 0 auto;
-  border-radius: var(--radius-md);
-}
-
-.logoLink:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 0.25rem;
-}
-
-.logo {
-  display: block;
-  width: 4rem;
-  height: auto;
 }
 
 .notice,
@@ -278,37 +255,6 @@ h2 {
   .sectionHeading {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .brand {
-    display: grid;
-    grid-template-columns: 4rem minmax(0, 1fr);
-    column-gap: 0.5rem;
-    row-gap: 0.5rem;
-  }
-
-  .brandContent {
-    display: contents;
-  }
-
-  .logoLink {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .brand h1 {
-    grid-column: 2;
-    grid-row: 1;
-    align-self: center;
-  }
-
-  .brandContent .eyebrow {
-    grid-column: 2;
-    grid-row: 2;
-  }
-
-  .header > div > .lead {
-    margin-left: calc(4rem + 0.5rem);
   }
 
   .stats {
