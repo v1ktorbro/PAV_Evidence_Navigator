@@ -146,86 +146,105 @@ const SourcesCatalog = () => {
       )}
 
       {response && (
-        <>
-          <section className={scss.notice}>
-            <div className={scss.noticeContent}>
-              <strong>Найдено источников: {response.items.length}.</strong>
-              <span>{response.discovery_mode}</span>
+        <div className={scss.catalogLayout}>
+          <section
+            className={scss.catalogPanel}
+            aria-label="Открытые источники"
+          >
+            <div className={scss.catalogHeading}>
+              <div>
+                <h2>Найденные источники</h2>
+                <p className={scss.discoveryMode}>{response.discovery_mode}</p>
+              </div>
+              <div className={scss.catalogActions}>
+                <span className={scss.sourceCount}>
+                  <strong>{response.items.length}</strong>
+                  <span className={scss.sourceCountLabel}>источников</span>
+                </span>
+                <button
+                  className={scss.reloadButton}
+                  type="button"
+                  aria-label="Обновить каталог источников"
+                  title="Обновить каталог"
+                  onClick={() => void loadSources()}
+                  disabled={isLoading}
+                >
+                  <IconRenderer className={scss.reloadIcon} icon="reload" />
+                  <span className={scss.reloadLabel}>Обновить</span>
+                </button>
+              </div>
             </div>
-            <button
-              className={scss.reloadButton}
-              type="button"
-              aria-label="Обновить каталог источников"
-              title="Обновить каталог"
-              onClick={() => void loadSources()}
-              disabled={isLoading}
-            >
-              <IconRenderer className={scss.reloadIcon} icon="reload" />
-            </button>
-          </section>
 
-          <section className={scss.list} aria-label="Открытые источники">
-            {response.items.map((source) => (
-              <article key={source.id} className={scss.card}>
-                <div className={scss.cardHeader}>
-                  <span className={scss.role}>
-                    {roleLabel[source.evidence_role]}
-                  </span>
-                  <span className={scss.review}>
-                    {reviewLabel[source.review_status]}
-                  </span>
-                  <span className={scss.access}>
-                    {accessLabel[source.access_level]}
-                  </span>
-                  <span className={scss.scope}>
-                    {scopeLabel[source.source_scope]}
-                  </span>
-                  {source.availability === "unavailable" && (
-                    <span className={scss.unavailable}>Ссылка недоступна</span>
-                  )}
-                </div>
-                <h2 title={source.title}>{source.title}</h2>
-                <p className={scss.publisher}>
-                  {source.publisher} · {source.source_type}
-                  {source.published ? ` · ${source.published}` : ""}
-                </p>
-                <p className={scss.relevance} title={source.relevance}>
-                  {source.relevance}
-                </p>
-                <div className={scss.actions}>
-                  {canExtractExperiment(source) && (
+            <div className={scss.list} tabIndex={0}>
+              {response.items.map((source) => (
+                <article key={source.id} className={scss.card}>
+                  <div className={scss.cardHeader}>
+                    <span className={scss.role}>
+                      {roleLabel[source.evidence_role]}
+                    </span>
+                    <span className={scss.review}>
+                      {reviewLabel[source.review_status]}
+                    </span>
+                    <span className={scss.access}>
+                      {accessLabel[source.access_level]}
+                    </span>
+                    <span className={scss.scope}>
+                      {scopeLabel[source.source_scope]}
+                    </span>
+                    {source.availability === "unavailable" && (
+                      <span className={scss.unavailable}>
+                        Ссылка недоступна
+                      </span>
+                    )}
+                  </div>
+                  <h3 title={source.title}>{source.title}</h3>
+                  <p className={scss.publisher}>
+                    {source.publisher} · {source.source_type}
+                    {source.published ? ` · ${source.published}` : ""}
+                  </p>
+                  <p className={scss.relevance} title={source.relevance}>
+                    {source.relevance}
+                  </p>
+                  <div className={scss.actions}>
+                    {canExtractExperiment(source) && (
+                      <a
+                        className={scss.extractionLink}
+                        href={getExtractionHref(source)}
+                      >
+                        <span>Добавить опыт</span>
+                        <IconRenderer
+                          className={scss.actionIcon}
+                          icon="arrowRight"
+                        />
+                      </a>
+                    )}
                     <a
-                      className={scss.extractionLink}
-                      href={getExtractionHref(source)}
+                      className={scss.sourceLink}
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="Открыть источник"
+                      aria-label={`Открыть источник в новой вкладке: ${source.title}`}
                     >
-                      <span>Добавить опыт</span>
+                      <span>Открыть источник</span>
                       <IconRenderer
                         className={scss.actionIcon}
-                        icon="arrowRight"
+                        icon="externalLink"
                       />
                     </a>
-                  )}
-                  <a
-                    className={scss.sourceLink}
-                    href={source.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="Открыть источник"
-                    aria-label={`Открыть источник в новой вкладке: ${source.title}`}
-                  >
-                    <span>Открыть источник</span>
-                    <IconRenderer
-                      className={scss.actionIcon}
-                      icon="externalLink"
-                    />
-                  </a>
-                </div>
-              </article>
-            ))}
+                  </div>
+                </article>
+              ))}
+            </div>
           </section>
 
-          <p className={scss.safetyNotice}>{response.safety_notice}</p>
-        </>
+          <aside className={scss.sidebar} aria-label="Сводка каталога">
+            <section className={scss.safetyPanel}>
+              <p className={scss.eyebrow}>Ограничение использования</p>
+              <p className={scss.safetyNotice}>{response.safety_notice}</p>
+            </section>
+          </aside>
+        </div>
       )}
       {isLoading && response && (
         <Loader variant="overlay" label="Обновляем каталог источников…" />
