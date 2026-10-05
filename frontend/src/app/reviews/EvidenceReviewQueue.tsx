@@ -8,6 +8,7 @@ import {
 } from "../../api/evidence";
 import type { EvidenceReview } from "../../assets/types/evidence";
 import Button from "../../components/ui/Button/Button";
+import Loader from "../../components/ui/Loader/Loader";
 
 const EvidenceReviewQueue = () => {
   const [reviews, setReviews] = useState<EvidenceReview[]>();
@@ -31,6 +32,14 @@ const EvidenceReviewQueue = () => {
   useEffect(() => {
     void loadReviews();
   }, []);
+
+  if (!reviews && !error) {
+    return (
+      <main className={scss.root}>
+        <Loader variant="page" label="Загружаем заявки на проверку…" />
+      </main>
+    );
+  }
 
   const handleApproval = (reviewId: string) => {
     setApprovingId(reviewId);
@@ -71,12 +80,6 @@ const EvidenceReviewQueue = () => {
       </header>
 
       {error && <p className={scss.error}>{error}</p>}
-
-      {!reviews && !error && (
-        <section className={scss.panel} aria-busy="true">
-          <p className={scss.muted}>Загружаем заявки на проверку…</p>
-        </section>
-      )}
 
       {reviews?.length === 0 && (
         <section className={scss.panel}>
@@ -170,6 +173,9 @@ const EvidenceReviewQueue = () => {
             );
           })}
         </section>
+      )}
+      {approvingId && (
+        <Loader variant="overlay" label="Выпускаем проверенный опыт…" />
       )}
     </main>
   );

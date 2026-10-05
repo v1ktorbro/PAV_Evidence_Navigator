@@ -13,6 +13,7 @@ import type {
 } from "../../assets/types/evidence";
 import Button from "../../components/ui/Button/Button";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
+import Loader from "../../components/ui/Loader/Loader";
 import { getAnalysisFlow } from "./analysisFlow";
 
 interface AnalysisResultValue {
@@ -150,6 +151,14 @@ const DataCompleteness = () => {
     );
   }
 
+  if (isLoading && !evidence && !result) {
+    return (
+      <main className={scss.root}>
+        <Loader variant="page" label="Проверяем выбранные опыты…" />
+      </main>
+    );
+  }
+
   return (
     <main className={scss.root}>
       <header className={scss.header}>
@@ -180,7 +189,10 @@ const DataCompleteness = () => {
         <h2>Полнота данных для вопроса</h2>
         <p className={scss.question}>{flow.question}</p>
         {isLoading && !evidence ? (
-          <p className={scss.muted}>Проверяем сведения в выбранных опытах…</p>
+          <Loader
+            variant="inline"
+            label="Проверяем сведения в выбранных опытах…"
+          />
         ) : (
           <ul className={scss.gaps}>
             {missingFields.length ? (
@@ -287,6 +299,9 @@ const DataCompleteness = () => {
             </pre>
           )}
         </section>
+      )}
+      {isLoading && evidence && (
+        <Loader variant="overlay" label="Готовим результат анализа…" />
       )}
     </main>
   );

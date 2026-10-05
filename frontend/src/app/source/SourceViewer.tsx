@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { getEvidenceItem } from "../../api/evidence";
 import type { EvidenceItem } from "../../assets/types/evidence";
+import Loader from "../../components/ui/Loader/Loader";
 interface ISourceViewer {
   evidenceId: string;
 }
@@ -42,8 +43,8 @@ const SourceViewer = ({ evidenceId }: ISourceViewer) => {
 
   if (!item) {
     return (
-      <main className={scss.root} aria-busy="true">
-        <p className={scss.muted}>Открываем фрагмент источника…</p>
+      <main className={scss.root}>
+        <Loader variant="page" label="Открываем фрагмент источника…" />
       </main>
     );
   }

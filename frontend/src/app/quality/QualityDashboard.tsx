@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { getQualityReport } from "../../api/evidence";
 import type { QualityGate, QualityReport } from "../../assets/types/evidence";
+import Loader from "../../components/ui/Loader/Loader";
 
 const gateLabel: Record<keyof QualityReport["acceptance_gates"], string> = {
   all_released_numeric_facts_traceable:
@@ -52,8 +53,8 @@ const QualityDashboard = () => {
 
   if (!report) {
     return (
-      <main className={scss.root} aria-busy="true">
-        <p className={scss.muted}>Проверяем критерии ТЗ…</p>
+      <main className={scss.root}>
+        <Loader variant="page" label="Проверяем критерии ТЗ…" />
       </main>
     );
   }

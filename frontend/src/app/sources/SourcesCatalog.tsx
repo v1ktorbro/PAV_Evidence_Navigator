@@ -8,6 +8,7 @@ import type {
   PublicSourcesResponse,
 } from "../../assets/types/evidence";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
+import Loader from "../../components/ui/Loader/Loader";
 import Tooltip from "../../components/ui/Tooltip/Tooltip";
 
 const reviewLabel = {
@@ -66,6 +67,17 @@ const SourcesCatalog = () => {
       );
   }, []);
 
+  if (!response && !error) {
+    return (
+      <main className={scss.root}>
+        <Loader
+          variant="page"
+          label="Ищем публикации и проверяем ссылки…"
+        />
+      </main>
+    );
+  }
+
   return (
     <main className={scss.root}>
       <header className={scss.header}>
@@ -119,12 +131,6 @@ const SourcesCatalog = () => {
           </p>
         </div>
       </header>
-
-      {!response && !error && (
-        <section className={scss.panel} aria-busy="true">
-          <p className={scss.muted}>Ищем свежие публикации и проверяем ссылки…</p>
-        </section>
-      )}
 
       {error && (
         <section className={scss.panel}>

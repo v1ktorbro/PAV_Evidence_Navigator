@@ -13,6 +13,7 @@ import AnalysisPanel from "../../components/AnalysisPanel/AnalysisPanel";
 import EvidenceFilters from "../../components/EvidenceFilters/EvidenceFilters";
 import EvidenceTable from "../../components/EvidenceTable/EvidenceTable";
 import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
+import Loader from "../../components/ui/Loader/Loader";
 import Tooltip from "../../components/ui/Tooltip/Tooltip";
 import { getAnalysisFlow, saveAnalysisFlow } from "./analysisFlow";
 const INITIAL_FILTERS: EvidenceFiltersValue = {
@@ -164,6 +165,14 @@ const EvidenceNavigator = () => {
     window.location.assign("/completeness");
   };
 
+  if (isLoading && !evidence && !result) {
+    return (
+      <main className={scss.root}>
+        <Loader variant="page" />
+      </main>
+    );
+  }
+
   return (
     <main className={scss.root}>
       <header className={scss.header}>
@@ -307,6 +316,9 @@ const EvidenceNavigator = () => {
               : JSON.stringify(result.value, null, 2)}
           </pre>
         </section>
+      )}
+      {isLoading && evidence && (
+        <Loader variant="overlay" label="Обновляем подборку опытов…" />
       )}
     </main>
   );

@@ -6,6 +6,7 @@ import type { FormEvent } from "react";
 import { createEvidenceReview } from "../../api/evidence";
 import type { EvidenceReviewSubmission } from "../../assets/types/evidence";
 import Button from "../../components/ui/Button/Button";
+import Loader from "../../components/ui/Loader/Loader";
 
 interface IExtractionSource {
   id: string;
@@ -325,6 +326,9 @@ const EvidenceExtractionForm = () => {
             <a href="/sources">Отменить</a>
           </div>
         </form>
+      )}
+      {isSaving && (
+        <Loader variant="overlay" label="Отправляем опыт на проверку…" />
       )}
     </main>
   );
