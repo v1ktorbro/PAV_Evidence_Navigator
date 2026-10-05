@@ -105,7 +105,7 @@ const EvidenceExtractionForm = () => {
         setError(
           submitError instanceof Error
             ? submitError.message
-            : "Не удалось отправить опыт на проверку.",
+            : "Не удалось отправить запись на проверку.",
         ),
       )
       .finally(() => setIsSaving(false));
@@ -115,11 +115,11 @@ const EvidenceExtractionForm = () => {
     return (
       <main className={scss.root}>
         <section className={scss.panel}>
-          <p className={scss.eyebrow}>Извлечение опыта</p>
+          <p className={scss.eyebrow}>Создание записи</p>
           <h1>Источник не выбран</h1>
           <p className={scss.muted}>
             Вернитесь в каталог и выберите материал, из которого нужно
-            извлечь лабораторный опыт.
+            создать запись опыта.
           </p>
           <a className={scss.backLink} href="/sources">
             К каталогу источников
@@ -132,11 +132,11 @@ const EvidenceExtractionForm = () => {
   return (
     <main className={scss.root}>
       <header className={scss.header}>
-        <p className={scss.eyebrow}>Новый опыт · шаг 1 из 2</p>
-        <h1>Извлечь лабораторный опыт</h1>
+        <p className={scss.eyebrow}>Новая запись · шаг 1 из 2</p>
+        <h1>Создать запись опыта</h1>
         <p className={scss.lead}>
-          Заполните факт только по проверенному фрагменту первоисточника. До
-          подтверждения ревьюером он не попадёт в инженерный анализ.
+          Перенесите сведения только из проверяемого фрагмента первоисточника.
+          До подтверждения ревьюером запись не попадёт в инженерный анализ.
         </p>
       </header>
 
@@ -151,9 +151,9 @@ const EvidenceExtractionForm = () => {
       {submittedReviewId ? (
         <section className={scss.success}>
           <p className={scss.eyebrow}>Отправлено</p>
-          <h2>Опыт {submittedReviewId} ожидает подтверждения</h2>
+          <h2>Запись {submittedReviewId} ожидает проверки</h2>
           <p>
-            Он не участвует в анализе, пока ревьюер не проверит фрагмент,
+            Запись не участвует в анализе, пока ревьюер не проверит фрагмент,
             условия и методику.
           </p>
           <a className={scss.backLink} href="/reviews">
@@ -163,7 +163,7 @@ const EvidenceExtractionForm = () => {
       ) : (
         <form className={scss.form} onSubmit={handleSubmit}>
           <fieldset disabled={isSaving}>
-            <legend>Рецептура и условия</legend>
+            <legend>Рецептура и условия опыта</legend>
             <div className={scss.fieldGrid}>
               <label className={scss.fullField}>
                 Название рецептуры
@@ -249,7 +249,7 @@ const EvidenceExtractionForm = () => {
           </fieldset>
 
           <fieldset disabled={isSaving}>
-            <legend>Методика и результат</legend>
+            <legend>Методика и измеренный результат</legend>
             <label>
               Методика опыта
               <textarea
@@ -297,7 +297,7 @@ const EvidenceExtractionForm = () => {
           </fieldset>
 
           <fieldset disabled={isSaving}>
-            <legend>Проверяемый фрагмент</legend>
+            <legend>Проверяемый фрагмент источника</legend>
             <label>
               Где расположен фрагмент (страница, таблица, рисунок)
               <input
@@ -320,7 +320,7 @@ const EvidenceExtractionForm = () => {
           {error && <p className={scss.error}>{error}</p>}
           <div className={scss.formActions}>
             <Button type="submit" disabled={isSaving}>
-              {isSaving ? "Отправляем…" : "Отправить на проверку"}
+              {isSaving ? "Отправляем…" : "Отправить запись на проверку"}
             </Button>
             <a href="/sources">Отменить</a>
           </div>
