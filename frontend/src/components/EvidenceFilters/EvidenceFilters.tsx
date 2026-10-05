@@ -4,7 +4,9 @@ import type { ChangeEvent, FC } from "react";
 
 import type { EvidenceFiltersValue } from "../../assets/types/evidence";
 import Button from "../ui/Button/Button";
+import Field from "../ui/Field/Field";
 import IconRenderer from "../ui/IconRenderer/IconRenderer";
+import NumberInput from "../ui/NumberInput/NumberInput";
 import Tooltip from "../ui/Tooltip/Tooltip";
 interface IEvidenceFilters {
   value: EvidenceFiltersValue;
@@ -58,56 +60,76 @@ const EvidenceFilters: FC<IEvidenceFilters> = ({
     });
   };
 
+  const handleNumberValueChange = (
+    field: "minTemperature" | "maxTemperature" | "maxSalinity",
+    nextValue: string,
+  ) => {
+    onChange({ ...value, [field]: nextValue });
+  };
+
   return (
     <section className={scss.root} aria-label="Фильтры опытов">
-      <div className={scss.field}>
-        <div className={scss.labelRow}>
-          <label htmlFor="minTemperature">Температура от, °C</label>
+      <Field
+        htmlFor="minTemperature"
+        label="Температура от, °C"
+        action={
           <InfoTooltip label="Температура от">
             Исключает опыты, в которых температура ниже указанного значения.
           </InfoTooltip>
-        </div>
-        <input
+        }
+      >
+        <NumberInput
           id="minTemperature"
           name="minTemperature"
-          type="number"
           value={value.minTemperature}
-          onChange={handleValueChange}
+          increment={1}
+          onValueChange={(nextValue) =>
+            handleNumberValueChange("minTemperature", nextValue)
+          }
           placeholder="70"
         />
-      </div>
-      <div className={scss.field}>
-        <div className={scss.labelRow}>
-          <label htmlFor="maxTemperature">Температура до, °C</label>
+      </Field>
+      <Field
+        htmlFor="maxTemperature"
+        label="Температура до, °C"
+        action={
           <InfoTooltip label="Температура до">
             Исключает опыты, в которых температура выше указанного значения.
           </InfoTooltip>
-        </div>
-        <input
+        }
+      >
+        <NumberInput
           id="maxTemperature"
           name="maxTemperature"
-          type="number"
           value={value.maxTemperature}
-          onChange={handleValueChange}
+          increment={1}
+          onValueChange={(nextValue) =>
+            handleNumberValueChange("maxTemperature", nextValue)
+          }
           placeholder="90"
         />
-      </div>
-      <div className={scss.field}>
-        <div className={scss.labelRow}>
-          <label htmlFor="maxSalinity">Минерализация до, г/л</label>
+      </Field>
+      <Field
+        htmlFor="maxSalinity"
+        label="Минерализация до, г/л"
+        action={
           <InfoTooltip label="Минерализация до">
             Оставляет опыты с минерализацией не выше указанного значения.
           </InfoTooltip>
-        </div>
-        <input
+        }
+      >
+        <NumberInput
           id="maxSalinity"
           name="maxSalinity"
-          type="number"
           value={value.maxSalinity}
-          onChange={handleValueChange}
+          min="0"
+          increment={1}
+          onValueChange={(nextValue) =>
+            handleNumberValueChange("maxSalinity", nextValue)
+          }
           placeholder="60"
         />
-      </div>
+      </Field>
       <div className={scss.checkbox}>
         <input
           id="comparableOnly"

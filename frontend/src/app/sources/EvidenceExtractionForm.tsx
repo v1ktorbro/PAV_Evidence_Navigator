@@ -6,7 +6,11 @@ import type { FormEvent } from "react";
 import { createEvidenceReview } from "../../api/evidence";
 import type { EvidenceReviewSubmission } from "../../assets/types/evidence";
 import Button from "../../components/ui/Button/Button";
+import Field from "../../components/ui/Field/Field";
+import Input from "../../components/ui/Input/Input";
 import Loader from "../../components/ui/Loader/Loader";
+import NumberInput from "../../components/ui/NumberInput/NumberInput";
+import Textarea from "../../components/ui/Textarea/Textarea";
 
 interface IExtractionSource {
   id: string;
@@ -166,156 +170,188 @@ const EvidenceExtractionForm = () => {
           <fieldset disabled={isSaving}>
             <legend>Рецептура и условия опыта</legend>
             <div className={scss.fieldGrid}>
-              <label className={scss.fullField}>
-                Название рецептуры
-                <input
+              <Field
+                className={scss.fullField}
+                htmlFor="formulationName"
+                label="Название рецептуры"
+                required
+              >
+                <Input
+                  id="formulationName"
                   required
                   value={value.formulationName}
                   onChange={(event) =>
                     handleFieldChange("formulationName", event.target.value)
                   }
                 />
-              </label>
-              <label>
-                Класс ПАВ
-                <input
+              </Field>
+              <Field htmlFor="surfactantClass" label="Класс ПАВ" required>
+                <Input
+                  id="surfactantClass"
                   required
                   value={value.surfactantClass}
                   onChange={(event) =>
                     handleFieldChange("surfactantClass", event.target.value)
                   }
                 />
-              </label>
-              <label>
-                Концентрация, масс. %
-                <input
+              </Field>
+              <Field
+                htmlFor="concentration"
+                label="Концентрация, масс. %"
+                required
+              >
+                <NumberInput
+                  id="concentration"
                   required
                   min="0"
                   step="any"
-                  type="number"
+                  increment={0.1}
                   value={value.concentration}
-                  onChange={(event) =>
-                    handleFieldChange("concentration", event.target.value)
+                  onValueChange={(nextValue) =>
+                    handleFieldChange("concentration", nextValue)
                   }
                 />
-              </label>
-              <label>
-                Температура, °C
-                <input
+              </Field>
+              <Field htmlFor="temperature" label="Температура, °C" required>
+                <NumberInput
+                  id="temperature"
                   required
                   step="any"
-                  type="number"
+                  increment={1}
                   value={value.temperature}
-                  onChange={(event) =>
-                    handleFieldChange("temperature", event.target.value)
+                  onValueChange={(nextValue) =>
+                    handleFieldChange("temperature", nextValue)
                   }
                 />
-              </label>
-              <label>
-                Минерализация, г/л
-                <input
+              </Field>
+              <Field
+                htmlFor="salinity"
+                label="Минерализация, г/л"
+                required
+              >
+                <NumberInput
+                  id="salinity"
                   required
                   min="0"
                   step="any"
-                  type="number"
+                  increment={1}
                   value={value.salinity}
-                  onChange={(event) =>
-                    handleFieldChange("salinity", event.target.value)
+                  onValueChange={(nextValue) =>
+                    handleFieldChange("salinity", nextValue)
                   }
                 />
-              </label>
-              <label>
-                Тип керна
-                <input
+              </Field>
+              <Field htmlFor="rockType" label="Тип керна" required>
+                <Input
+                  id="rockType"
                   required
                   value={value.rockType}
                   onChange={(event) =>
                     handleFieldChange("rockType", event.target.value)
                   }
                 />
-              </label>
-              <label>
-                Проницаемость, мД
-                <input
+              </Field>
+              <Field htmlFor="permeability" label="Проницаемость, мД">
+                <NumberInput
+                  id="permeability"
                   min="0"
                   step="any"
-                  type="number"
+                  increment={1}
                   value={value.permeability}
-                  onChange={(event) =>
-                    handleFieldChange("permeability", event.target.value)
+                  onValueChange={(nextValue) =>
+                    handleFieldChange("permeability", nextValue)
                   }
                 />
-              </label>
+              </Field>
             </div>
           </fieldset>
 
           <fieldset disabled={isSaving}>
             <legend>Методика и измеренный результат</legend>
-            <label>
-              Методика опыта
-              <textarea
+            <Field htmlFor="method" label="Методика опыта" required>
+              <Textarea
+                id="method"
                 required
                 minLength={5}
                 rows={4}
                 value={value.method}
-                onChange={(event) => handleFieldChange("method", event.target.value)}
+                onChange={(event) =>
+                  handleFieldChange("method", event.target.value)
+                }
               />
-            </label>
+            </Field>
             <div className={scss.fieldGrid}>
-              <label className={scss.fullField}>
-                Измеренный показатель
-                <input
+              <Field
+                className={scss.fullField}
+                htmlFor="resultLabel"
+                label="Измеренный показатель"
+                required
+              >
+                <Input
+                  id="resultLabel"
                   required
                   value={value.resultLabel}
                   onChange={(event) =>
                     handleFieldChange("resultLabel", event.target.value)
                   }
                 />
-              </label>
-              <label>
-                Значение
-                <input
+              </Field>
+              <Field htmlFor="resultValue" label="Значение" required>
+                <NumberInput
+                  id="resultValue"
                   required
                   step="any"
-                  type="number"
+                  increment={0.1}
                   value={value.resultValue}
-                  onChange={(event) =>
-                    handleFieldChange("resultValue", event.target.value)
+                  onValueChange={(nextValue) =>
+                    handleFieldChange("resultValue", nextValue)
                   }
                 />
-              </label>
-              <label>
-                Единица измерения
-                <input
+              </Field>
+              <Field htmlFor="resultUnit" label="Единица измерения" required>
+                <Input
+                  id="resultUnit"
                   required
                   value={value.resultUnit}
                   onChange={(event) =>
                     handleFieldChange("resultUnit", event.target.value)
                   }
                 />
-              </label>
+              </Field>
             </div>
           </fieldset>
 
           <fieldset disabled={isSaving}>
             <legend>Проверяемый фрагмент источника</legend>
-            <label>
-              Где расположен фрагмент (страница, таблица, рисунок)
-              <input
+            <Field
+              htmlFor="location"
+              label="Где расположен фрагмент (страница, таблица, рисунок)"
+              required
+            >
+              <Input
+                id="location"
                 required
                 value={value.location}
-                onChange={(event) => handleFieldChange("location", event.target.value)}
+                onChange={(event) =>
+                  handleFieldChange("location", event.target.value)
+                }
               />
-            </label>
-            <label>
-              Цитата или точное описание фрагмента
-              <textarea
+            </Field>
+            <Field
+              htmlFor="excerpt"
+              label="Цитата или точное описание фрагмента"
+              required
+            >
+              <Textarea
+                id="excerpt"
                 required
                 rows={5}
                 value={value.excerpt}
-                onChange={(event) => handleFieldChange("excerpt", event.target.value)}
+                onChange={(event) =>
+                  handleFieldChange("excerpt", event.target.value)
+                }
               />
-            </label>
+            </Field>
           </fieldset>
 
           {error && <p className={scss.error}>{error}</p>}
