@@ -76,39 +76,45 @@ const SynapseStatus = ({
           <span className={scss.expandIcon} aria-hidden="true" />
         </span>
       </button>
-      {isExpanded && (
-        <div className={scss.details} id="synapse-status-details">
-          <p>{description}</p>
-          {isConfigured && !isLoading && !hasError && (
-            <dl>
-              <div>
-                <dt>Режим запуска</dt>
-                <dd>{getApprovalModeLabel(config?.approval_mode ?? "")}</dd>
-              </div>
-              <div>
-                <dt>Действие</dt>
-                <dd>Выберите опыты и перейдите к анализу.</dd>
-              </div>
-            </dl>
-          )}
-          {!isConfigured && !isLoading && !hasError && (
-            <p className={scss.setupHint}>
-              Для подключения заполните параметры Synapse в <code>.env</code>{" "}
-              на сервере и перезапустите backend.
-            </p>
-          )}
-          {hasError && (
-            <button
-              className={scss.refreshButton}
-              type="button"
-              onClick={onRefresh}
-              disabled={isLoading}
-            >
-              Проверить ещё раз
-            </button>
-          )}
+      <div
+        className={scss.details}
+        id="synapse-status-details"
+        aria-hidden={!isExpanded}
+      >
+        <div className={scss.detailsContent}>
+          <div className={scss.detailsBody}>
+            <p>{description}</p>
+            {isConfigured && !isLoading && !hasError && (
+              <dl>
+                <div>
+                  <dt>Режим запуска</dt>
+                  <dd>{getApprovalModeLabel(config?.approval_mode ?? "")}</dd>
+                </div>
+                <div>
+                  <dt>Действие</dt>
+                  <dd>Выберите опыты и перейдите к анализу.</dd>
+                </div>
+              </dl>
+            )}
+            {!isConfigured && !isLoading && !hasError && (
+              <p className={scss.setupHint}>
+                Для подключения заполните параметры Synapse в <code>.env</code>{" "}
+                на сервере и перезапустите backend.
+              </p>
+            )}
+            {hasError && (
+              <button
+                className={scss.refreshButton}
+                type="button"
+                onClick={onRefresh}
+                disabled={isLoading}
+              >
+                Проверить ещё раз
+              </button>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </aside>
   );
 };

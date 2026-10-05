@@ -7,6 +7,7 @@ import type {
   PublicSource,
   PublicSourcesResponse,
 } from "../../assets/types/evidence";
+import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 
 const reviewLabel = {
   context_only: "Справочный источник",
@@ -43,6 +44,10 @@ const getExtractionHref = (source: PublicSource) => {
   });
   return `/sources/extract?${query}`;
 };
+
+const canExtractExperiment = (source: PublicSource) =>
+  source.evidence_role === "laboratory_data" &&
+  source.review_status === "candidate_for_extraction";
 
 const SourcesCatalog = () => {
   const [response, setResponse] = useState<PublicSourcesResponse>();
@@ -114,20 +119,43 @@ const SourcesCatalog = () => {
                     <span className={scss.unavailable}>Ссылка недоступна</span>
                   )}
                 </div>
-                <h2>{source.title}</h2>
+                <div className={scss.titleRow}>
+                  <h2 title={source.title}>{source.title}</h2>
+                  <a
+                    className={scss.sourceLink}
+                    href={source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="Открыть источник"
+                    aria-label={`Открыть источник в новой вкладке: ${source.title}`}
+                  >
+                    <IconRenderer
+                      className={scss.actionIcon}
+                      icon="externalLink"
+                    />
+                  </a>
+                </div>
                 <p className={scss.publisher}>
                   {source.publisher} · {source.source_type}
                   {source.published ? ` · ${source.published}` : ""}
                 </p>
-                <p>{source.relevance}</p>
-                <div className={scss.actions}>
-                  <a href={source.url} target="_blank" rel="noreferrer">
-                    Открыть источник
-                  </a>
-                  <a className={scss.extractLink} href={getExtractionHref(source)}>
-                    Извлечь опыт
-                  </a>
-                </div>
+                <p className={scss.relevance} title={source.relevance}>
+                  {source.relevance}
+                </p>
+                {canExtractExperiment(source) && (
+                  <div className={scss.actions}>
+                    <a
+                      className={scss.extractLink}
+                      href={getExtractionHref(source)}
+                    >
+                      <span>Извлечь опыт</span>
+                      <IconRenderer
+                        className={scss.actionIcon}
+                        icon="arrowRight"
+                      />
+                    </a>
+                  </div>
+                )}
               </article>
             ))}
           </section>
