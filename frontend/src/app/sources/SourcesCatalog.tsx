@@ -54,26 +54,33 @@ const canExtractExperiment = (source: PublicSource) =>
 const SourcesCatalog = () => {
   const [response, setResponse] = useState<PublicSourcesResponse>();
   const [error, setError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadSources = async () => {
+    setIsLoading(true);
+    setError(undefined);
+
+    try {
+      setResponse(await getPublicSources());
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Неизвестная ошибка поиска.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    void getPublicSources()
-      .then(setResponse)
-      .catch((loadError) =>
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : "Неизвестная ошибка поиска.",
-        ),
-      );
+    void loadSources();
   }, []);
 
-  if (!response && !error) {
+  if (isLoading && !response && !error) {
     return (
       <main className={scss.root}>
-        <Loader
-          variant="page"
-          label="Ищем публикации и проверяем ссылки…"
-        />
+        <Loader variant="page" label="Ищем публикации и проверяем ссылки…" />
       </main>
     );
   }
@@ -82,7 +89,6 @@ const SourcesCatalog = () => {
     <main className={scss.root}>
       <header className={scss.header}>
         <div>
-          <p className={scss.eyebrow}>Каталог источников</p>
           <h1>
             Открытые источники по{" "}
             <span className={scss.term}>
@@ -142,8 +148,20 @@ const SourcesCatalog = () => {
       {response && (
         <>
           <section className={scss.notice}>
-            <strong>Найдено источников: {response.items.length}.</strong>
-            <span>{response.discovery_mode}</span>
+            <div className={scss.noticeContent}>
+              <strong>Найдено источников: {response.items.length}.</strong>
+              <span>{response.discovery_mode}</span>
+            </div>
+            <button
+              className={scss.reloadButton}
+              type="button"
+              aria-label="Обновить каталог источников"
+              title="Обновить каталог"
+              onClick={() => void loadSources()}
+              disabled={isLoading}
+            >
+              <IconRenderer className={scss.reloadIcon} icon="reload" />
+            </button>
           </section>
 
           <section className={scss.list} aria-label="Открытые источники">
@@ -208,6 +226,9 @@ const SourcesCatalog = () => {
 
           <p className={scss.safetyNotice}>{response.safety_notice}</p>
         </>
+      )}
+      {isLoading && response && (
+        <Loader variant="overlay" label="Обновляем каталог источников…" />
       )}
     </main>
   );
