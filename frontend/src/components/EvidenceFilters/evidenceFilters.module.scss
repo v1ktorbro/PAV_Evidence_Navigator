@@ -55,6 +55,12 @@
   display: grid;
 }
 
+.numberInput,
+.submitButton {
+  height: 2.75rem;
+  min-height: 0;
+}
+
 .submitLabel,
 .submitLabelPlaceholder {
   grid-area: 1 / 1;

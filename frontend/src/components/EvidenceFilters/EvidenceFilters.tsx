@@ -79,6 +79,7 @@ const EvidenceFilters: FC<IEvidenceFilters> = ({
         }
       >
         <NumberInput
+          className={scss.numberInput}
           id="minTemperature"
           name="minTemperature"
           value={value.minTemperature}
@@ -99,6 +100,7 @@ const EvidenceFilters: FC<IEvidenceFilters> = ({
         }
       >
         <NumberInput
+          className={scss.numberInput}
           id="maxTemperature"
           name="maxTemperature"
           value={value.maxTemperature}
@@ -119,6 +121,7 @@ const EvidenceFilters: FC<IEvidenceFilters> = ({
         }
       >
         <NumberInput
+          className={scss.numberInput}
           id="maxSalinity"
           name="maxSalinity"
           value={value.maxSalinity}
