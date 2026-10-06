@@ -7,6 +7,7 @@ import { createEvidenceReview } from "../../api/evidence";
 import type { EvidenceReviewSubmission } from "../../assets/types/evidence";
 import Button from "../../components/ui/Button/Button";
 import Field from "../../components/ui/Field/Field";
+import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import Input from "../../components/ui/Input/Input";
 import Loader from "../../components/ui/Loader/Loader";
 import NumberInput from "../../components/ui/NumberInput/NumberInput";
@@ -147,9 +148,15 @@ const EvidenceExtractionForm = () => {
 
       <section className={scss.source} aria-label="Выбранный источник">
         <span>Источник</span>
-        <strong>{source.title}</strong>
-        <a href={source.url} target="_blank" rel="noreferrer">
-          Открыть публикацию
+        <a
+          className={scss.sourceLink}
+          href={source.url}
+          target="_blank"
+          rel="noreferrer"
+          title="Открыть ссылку"
+        >
+          <strong>{source.title}</strong>
+          <IconRenderer className={scss.sourceLinkIcon} icon="externalLink" />
         </a>
       </section>
 

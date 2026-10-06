@@ -57,11 +57,28 @@
   font-size: 0.8125rem;
 }
 
-.source a,
 .backLink,
 .formActions a {
   color: var(--color-accent);
   font-weight: 700;
+}
+
+.sourceLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sourceLink:focus-visible {
+  outline: 0.1875rem solid var(--color-accent);
+  outline-offset: 0.25rem;
+}
+
+.sourceLinkIcon {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.5rem;
+  vertical-align: -0.125em;
 }
 
 .form {
