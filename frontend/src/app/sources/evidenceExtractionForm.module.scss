@@ -1,8 +1,5 @@
 .root {
-  width: min(
-    58rem,
-    calc(100% - var(--page-gutter) - var(--page-gutter))
-  );
+  width: min(58rem, calc(100% - var(--page-gutter) - var(--page-gutter)));
   margin: 0 auto;
   padding: 3rem 0;
 }

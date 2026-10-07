@@ -5,8 +5,8 @@
     var(--content-width),
     calc(100% - var(--page-gutter) - var(--page-gutter))
   );
-  margin: 0 auto;
-  padding: 1.5rem 0;
+  margin-inline: auto;
+  margin-top: 1.5rem;
 }
 
 .header {

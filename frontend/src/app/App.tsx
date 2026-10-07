@@ -61,7 +61,7 @@ const App = () => {
   return (
     <div className={scss.root}>
       <Header />
-      {screen}
+      <div className={scss.screen}>{screen}</div>
       <SynapseStatus
         config={synapseConfig}
         isLoading={isSynapseLoading}
