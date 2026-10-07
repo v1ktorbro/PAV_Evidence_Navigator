@@ -27,6 +27,7 @@ const MAX_SELECTED_DOCUMENTS = 50;
 const MAX_VISIBLE_SELECTED_FILES = 4;
 
 type WorkspaceView = "documents" | "search";
+type QuestionEditorState = "top" | "collapsed";
 
 const formatFileSize = (sizeBytes: number) => {
   if (sizeBytes < 1024 * 1024) {
@@ -75,6 +76,9 @@ const formatDocumentCount = (count: number) => {
 const DocumentsWorkspace = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchResultsRef = useRef<HTMLElement>(null);
+  const questionEditorRef = useRef<HTMLFormElement>(null);
+  const questionInputRef = useRef<HTMLTextAreaElement>(null);
+  const shouldFocusQuestionEditorRef = useRef(false);
   const documentsRef = useRef<DocumentMetadata[]>([]);
   const hasResolvedInitialDocuments = useRef(false);
   const [documents, setDocuments] = useState<DocumentMetadata[]>();
@@ -84,6 +88,8 @@ const DocumentsWorkspace = () => {
   const [accessToken, setAccessToken] = useState("");
   const [question, setQuestion] = useState("");
   const [searchResult, setSearchResult] = useState<DocumentSearchResponse>();
+  const [questionEditorState, setQuestionEditorState] =
+    useState<QuestionEditorState>("top");
   const [documentsError, setDocumentsError] = useState<string>();
   const [uploadError, setUploadError] = useState<string>();
   const [uploadSuccess, setUploadSuccess] = useState<string>();
@@ -160,7 +166,7 @@ const DocumentsWorkspace = () => {
   }, [loadDocuments]);
 
   useEffect(() => {
-    if (!searchResult || isSearching) return;
+    if (!searchResult || isSearching || !searchResult.items.length) return;
 
     const animationFrame = window.requestAnimationFrame(() => {
       searchResultsRef.current?.scrollIntoView({
@@ -173,6 +179,23 @@ const DocumentsWorkspace = () => {
 
     return () => window.cancelAnimationFrame(animationFrame);
   }, [isSearching, searchResult]);
+
+  useEffect(() => {
+    if (!shouldFocusQuestionEditorRef.current) return;
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      shouldFocusQuestionEditorRef.current = false;
+      questionEditorRef.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "nearest",
+      });
+      questionInputRef.current?.focus();
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [questionEditorState]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(Array.from(event.target.files ?? []));
@@ -316,6 +339,7 @@ const DocumentsWorkspace = () => {
         current.filter((documentId) => documentId !== documentToDelete.id),
       );
       setSearchResult(undefined);
+      setQuestionEditorState("top");
       setDocumentActionSuccess(
         `Документ «${documentToDelete.filename}» удалён.`,
       );
@@ -362,7 +386,8 @@ const DocumentsWorkspace = () => {
         accessToken,
       );
       setSearchResult(response);
-      setQuestion("");
+      setQuestion(response.query);
+      setQuestionEditorState(response.items.length ? "collapsed" : "top");
     } catch (error) {
       setSearchError(
         error instanceof Error
@@ -385,6 +410,13 @@ const DocumentsWorkspace = () => {
 
   const handleSearchViewOpen = () => {
     setActiveView("search");
+  };
+
+  const handleQuestionEditorOpen = () => {
+    setQuestionError(undefined);
+    setSearchError(undefined);
+    shouldFocusQuestionEditorRef.current = true;
+    setQuestionEditorState("top");
   };
 
   const handleOpenSource = async (citation: DocumentCitation) => {
@@ -420,6 +452,51 @@ const DocumentsWorkspace = () => {
       setIsOpeningSource(false);
     }
   };
+
+  const renderQuestionForm = () => (
+    <form
+      ref={questionEditorRef}
+      id="document-question-editor"
+      className={scss.questionForm}
+      onSubmit={handleSearch}
+    >
+      <Field
+        label="Что вы хотите найти?"
+        htmlFor="document-question"
+        hint="Например: «Какие ПАВ показали устойчивость эмульсии при pH 5–7?»"
+        error={questionError}
+        required
+      >
+        <Textarea
+          ref={questionInputRef}
+          id="document-question"
+          value={question}
+          onChange={(event) => setQuestion(event.target.value)}
+          placeholder="Сформулируйте вопрос, на который нужно найти подтверждение в документах"
+          rows={4}
+          disabled={isSearching}
+        />
+      </Field>
+      {searchError && (
+        <p className={scss.selectionError} role="alert">
+          {searchError}
+        </p>
+      )}
+      <div className={scss.questionActions}>
+        <Button
+          type="submit"
+          disabled={isSearching || !selectedDocumentIds.length}
+        >
+          {isSearching
+            ? "Ищем фрагменты…"
+            : "Найти подтверждающие фрагменты"}
+        </Button>
+        <span>
+          Будет показано до {SEARCH_LIMIT} наиболее релевантных фрагментов.
+        </span>
+      </div>
+    </form>
+  );
 
   if (isDocumentsLoading && !documents) {
     return (
@@ -720,53 +797,19 @@ const DocumentsWorkspace = () => {
                   </fieldset>
                 </article>
 
-                <section
-                  className={scss.panel}
-                  aria-labelledby="search-question"
-                >
-                  <div className={scss.sectionHeading}>
-                    <div>
-                      <h2 id="search-question">Задайте вопрос</h2>
+                {(!searchResult || questionEditorState === "top") && (
+                  <section
+                    className={scss.panel}
+                    aria-labelledby="search-question"
+                  >
+                    <div className={scss.sectionHeading}>
+                      <div>
+                        <h2 id="search-question">Задайте вопрос</h2>
+                      </div>
                     </div>
-                  </div>
-                  <form className={scss.questionForm} onSubmit={handleSearch}>
-                    <Field
-                      label="Что вы хотите найти?"
-                      htmlFor="document-question"
-                      hint="Например: «Какие ПАВ показали устойчивость эмульсии при pH 5–7?»"
-                      error={questionError}
-                      required
-                    >
-                      <Textarea
-                        id="document-question"
-                        value={question}
-                        onChange={(event) => setQuestion(event.target.value)}
-                        placeholder="Сформулируйте вопрос, на который нужно найти подтверждение в документах"
-                        rows={4}
-                        disabled={isSearching}
-                      />
-                    </Field>
-                    {searchError && (
-                      <p className={scss.selectionError} role="alert">
-                        {searchError}
-                      </p>
-                    )}
-                    <div className={scss.questionActions}>
-                      <Button
-                        type="submit"
-                        disabled={isSearching || !selectedDocumentIds.length}
-                      >
-                        {isSearching
-                          ? "Ищем фрагменты…"
-                          : "Найти подтверждающие фрагменты"}
-                      </Button>
-                      <span>
-                        Будет показано до {SEARCH_LIMIT} наиболее релевантных
-                        фрагментов.
-                      </span>
-                    </div>
-                  </form>
-                </section>
+                    {renderQuestionForm()}
+                  </section>
+                )}
               </>
             ) : (
               <section
@@ -807,10 +850,21 @@ const DocumentsWorkspace = () => {
                 <h2>Фрагменты по вопросу</h2>
                 <p className={scss.muted}>«{searchResult.query}»</p>
               </div>
-              <span className={scss.count}>
-                {searchResult.total}{" "}
-                {searchResult.total === 1 ? "результат" : "результатов"}
-              </span>
+              <div className={scss.resultsActions}>
+                <span className={scss.count}>
+                  {searchResult.total}{" "}
+                  {searchResult.total === 1 ? "результат" : "результатов"}
+                </span>
+                {questionEditorState === "collapsed" && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleQuestionEditorOpen}
+                  >
+                    Изменить вопрос
+                  </Button>
+                )}
+              </div>
             </div>
 
             {searchResult.items.length ? (

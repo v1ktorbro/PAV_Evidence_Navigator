@@ -530,6 +530,15 @@
   scroll-margin-top: 1.5rem;
 }
 
+.resultsActions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 .resultList {
   min-height: var(--document-list-min-height);
   max-height: var(--document-list-min-height);
@@ -719,6 +728,10 @@
   .documentsSummary {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .resultsActions {
+    justify-content: flex-start;
   }
 
   .selectionActions {
