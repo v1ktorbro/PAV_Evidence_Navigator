@@ -35,18 +35,60 @@
 .lead {
   margin-top: 0.75rem;
   color: var(--color-text-muted);
-  text-align: start;
+}
+
+.viewSwitcher {
+  display: flex;
+  gap: 0.5rem;
+  width: fit-content;
+  margin: 0 auto 1.5rem;
+  padding: 0.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+}
+
+.viewButton {
+  min-height: 2.25rem;
+  padding: 0.375rem 0.875rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.viewButton[aria-pressed="true"] {
+  color: #062016;
+  background: var(--color-accent);
+}
+
+.viewButton:hover:not([aria-pressed="true"]) {
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+}
+
+.viewButton:focus-visible {
+  outline: 0.125rem solid var(--color-accent);
+  outline-offset: 0.125rem;
 }
 
 .muted {
   color: var(--color-text-muted);
 }
 
-.workspace {
+.documentsWorkspace,
+.searchWorkspace {
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   gap: 1.5rem;
-  align-items: start;
+}
+
+.documentsWorkspace {
+  width: min(100%, 48rem);
+  margin: 0 auto;
 }
 
 .panel,
@@ -65,6 +107,14 @@
   gap: 1rem;
   justify-content: space-between;
   align-items: flex-start;
+}
+
+.selectionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .count {
@@ -124,12 +174,114 @@
   opacity: 0.65;
 }
 
+.selectedFiles {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.selectedFilesHeading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+.selectedFilesHeading span {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.selectedFilesList {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 12.5rem;
+  margin: 0;
+  padding: 0 0.5rem 0 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  list-style: none;
+}
+
+.selectedFile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.75rem;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+.selectedFileName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectedFileSize {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.removeSelectedFileButton {
+  min-height: 2rem;
+  padding: 0.25rem 0.5rem;
+  color: var(--color-danger);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--color-danger) 45%, transparent);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.removeSelectedFileButton:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+}
+
+.removeSelectedFileButton:focus-visible {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 2px;
+}
+
+.removeSelectedFileButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .uploadActions,
 .questionActions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
+}
+
+.documentsSummary {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface));
+}
+
+.documentsSummary h2 {
+  font-size: 1rem;
+}
+
+.documentsSummary p {
+  margin-top: 0.375rem;
+  color: var(--color-text-muted);
 }
 
 .uploadActions span,
@@ -173,6 +325,13 @@
   gap: 0.75rem;
   margin-top: 1rem;
   list-style: none;
+}
+
+.documentList {
+  grid-template-columns: minmax(0, 1fr);
+  max-height: min(30rem, 58vh);
+  padding-right: 0.5rem;
+  overflow-y: auto;
 }
 
 .documentItem {
@@ -246,6 +405,7 @@
   background: color-mix(in srgb, var(--color-surface-raised) 62%, transparent);
 }
 
+.emptyState h2,
 .emptyState h3 {
   color: var(--color-text);
   font-size: 1rem;
@@ -255,8 +415,8 @@
   margin-top: 0.5rem;
 }
 
-.searchPanel {
-  margin-top: 1.5rem;
+.emptyState button {
+  margin-top: 1rem;
 }
 
 .errorBanner {
@@ -393,12 +553,6 @@
   font-weight: 700;
 }
 
-@include media.tablet {
-  .workspace {
-    grid-template-columns: 1fr;
-  }
-}
-
 @include media.mobile {
   .root {
     padding-top: 1rem;
@@ -413,9 +567,14 @@
   .sectionHeading,
   .resultsHeading,
   .errorBanner,
-  .citationHeading {
+  .citationHeading,
+  .documentsSummary {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .selectionActions {
+    justify-content: flex-start;
   }
 
   .documentTopLine {
