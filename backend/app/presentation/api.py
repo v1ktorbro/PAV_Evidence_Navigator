@@ -239,6 +239,14 @@ def search_documents(body: DocumentSearchBody) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
+@router.delete("/documents/{document_id}", dependencies=[Depends(require_document_access_token)])
+def delete_document(document_id: str) -> dict[str, Any]:
+    try:
+        return document_service.delete_document(document_id)
+    except DocumentNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
 @router.get(
     "/documents/{document_id}/file",
     dependencies=[Depends(require_document_access_token)],

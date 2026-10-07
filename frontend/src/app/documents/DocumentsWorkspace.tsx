@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 
 import {
+  deleteDocument,
   getDocumentFile,
   getDocuments,
   searchDocuments,
@@ -16,6 +17,7 @@ import type {
 } from "../../assets/types/documents";
 import Button from "../../components/ui/Button/Button";
 import Field from "../../components/ui/Field/Field";
+import IconRenderer from "../../components/ui/IconRenderer/IconRenderer";
 import Input from "../../components/ui/Input/Input";
 import Loader from "../../components/ui/Loader/Loader";
 import Textarea from "../../components/ui/Textarea/Textarea";
@@ -89,10 +91,15 @@ const DocumentsWorkspace = () => {
   const [selectionError, setSelectionError] = useState<string>();
   const [searchError, setSearchError] = useState<string>();
   const [sourceError, setSourceError] = useState<string>();
+  const [documentActionSuccess, setDocumentActionSuccess] = useState<string>();
+  const [documentToDelete, setDocumentToDelete] =
+    useState<DocumentMetadata>();
   const [isDocumentsLoading, setIsDocumentsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isOpeningSource, setIsOpeningSource] = useState(false);
+  const [isDeletingDocument, setIsDeletingDocument] = useState(false);
+  const [documentDeleteError, setDocumentDeleteError] = useState<string>();
   const hasSearchOutput = isSearching || Boolean(searchResult);
   const contentClassNames = [
     scss.content,
@@ -276,6 +283,50 @@ const DocumentsWorkspace = () => {
 
       return [...current, documentId];
     });
+  };
+
+  const handleDocumentDeleteRequest = (document: DocumentMetadata) => {
+    setDocumentActionSuccess(undefined);
+    setDocumentDeleteError(undefined);
+    setDocumentToDelete(document);
+  };
+
+  const handleDocumentDeleteCancel = () => {
+    if (isDeletingDocument) return;
+
+    setDocumentDeleteError(undefined);
+    setDocumentToDelete(undefined);
+  };
+
+  const handleDocumentDelete = async () => {
+    if (!documentToDelete) return;
+
+    setDocumentDeleteError(undefined);
+    setIsDeletingDocument(true);
+
+    try {
+      await deleteDocument(documentToDelete.id, accessToken);
+      const nextDocuments = documentsRef.current.filter(
+        (document) => document.id !== documentToDelete.id,
+      );
+
+      documentsRef.current = nextDocuments;
+      setDocuments(nextDocuments);
+      setSelectedDocumentIds((current) =>
+        current.filter((documentId) => documentId !== documentToDelete.id),
+      );
+      setSearchResult(undefined);
+      setDocumentActionSuccess(
+        `Документ «${documentToDelete.filename}» удалён.`,
+      );
+      setDocumentToDelete(undefined);
+    } catch (error) {
+      setDocumentDeleteError(
+        error instanceof Error ? error.message : "Не удалось удалить документ.",
+      );
+    } finally {
+      setIsDeletingDocument(false);
+    }
   };
 
   const handleSearch = async (event: FormEvent<HTMLFormElement>) => {
@@ -593,6 +644,11 @@ const DocumentsWorkspace = () => {
                         {selectionError}
                       </p>
                     )}
+                    {documentActionSuccess && (
+                      <p className={scss.successMessage} role="status">
+                        {documentActionSuccess}
+                      </p>
+                    )}
                     <ul className={scss.documentList}>
                       {documents.map((document) => {
                         const checkboxId = `document-${document.id}`;
@@ -614,28 +670,49 @@ const DocumentsWorkspace = () => {
                                 )
                               }
                             />
-                            <label
-                              className={scss.documentLabel}
-                              htmlFor={checkboxId}
-                            >
-                              <span className={scss.documentTopLine}>
-                                <strong>{document.filename}</strong>
-                                <span className={scss.status}>
-                                  {formatDocumentStatus(document.status)}
+                            <div className={scss.documentContent}>
+                              <label
+                                className={scss.documentLabel}
+                                htmlFor={checkboxId}
+                              >
+                                <span className={scss.documentTopLine}>
+                                  <strong>{document.filename}</strong>
                                 </span>
-                              </span>
-                              <span className={scss.documentMeta}>
-                                <span>
-                                  {formatFileSize(document.sizeBytes)}
+                                <span className={scss.documentMeta}>
+                                  <span>
+                                    {formatFileSize(document.sizeBytes)}
+                                  </span>
+                                  <span>{document.pageCount} стр.</span>
+                                  <span>
+                                    {document.textPageCount} с текстом
+                                  </span>
+                                  <span>{document.chunkCount} фрагментов</span>
+                                  <span className={scss.status}>
+                                    <span
+                                      className={scss.statusIndicator}
+                                      aria-hidden="true"
+                                    />
+                                    {formatDocumentStatus(document.status)}
+                                  </span>
                                 </span>
-                                <span>{document.pageCount} стр.</span>
-                                <span>{document.textPageCount} с текстом</span>
-                                <span>{document.chunkCount} фрагментов</span>
-                              </span>
-                              <span className={scss.documentDate}>
-                                Добавлен: {formatDate(document.uploadedAt)}
-                              </span>
-                            </label>
+                                <span className={scss.documentDate}>
+                                  Добавлен: {formatDate(document.uploadedAt)}
+                                </span>
+                              </label>
+                              <button
+                                className={scss.documentDeleteButton}
+                                type="button"
+                                onClick={() =>
+                                  handleDocumentDeleteRequest(document)
+                                }
+                                aria-label={`Удалить документ «${document.filename}»`}
+                                title="Удалить документ"
+                              >
+                                <span aria-hidden="true">
+                                  <IconRenderer icon="remove" />
+                                </span>
+                              </button>
+                            </div>
                           </li>
                         );
                       })}
@@ -794,6 +871,54 @@ const DocumentsWorkspace = () => {
               </p>
             )}
           </section>
+        )}
+
+        {documentToDelete && (
+          <div className={scss.confirmationOverlay}>
+            <section
+              className={scss.confirmationDialog}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-document-title"
+              aria-describedby="delete-document-description"
+              onKeyDown={(event) => {
+                if (event.key !== "Escape") return;
+
+                event.preventDefault();
+                handleDocumentDeleteCancel();
+              }}
+            >
+              <h2 id="delete-document-title">Удалить документ?</h2>
+              <p id="delete-document-description">
+                Файл «{documentToDelete.filename}» и найденные в нём фрагменты
+                будут удалены без возможности восстановления.
+              </p>
+              {documentDeleteError && (
+                <p className={scss.selectionError} role="alert">
+                  {documentDeleteError}
+                </p>
+              )}
+              <div className={scss.confirmationActions}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleDocumentDeleteCancel}
+                  disabled={isDeletingDocument}
+                  autoFocus
+                >
+                  Отмена
+                </Button>
+                <Button
+                  className={scss.confirmDeleteButton}
+                  type="button"
+                  onClick={() => void handleDocumentDelete()}
+                  disabled={isDeletingDocument}
+                >
+                  {isDeletingDocument ? "Удаляем…" : "Удалить"}
+                </Button>
+              </div>
+            </section>
+          </div>
         )}
       </div>
     </main>

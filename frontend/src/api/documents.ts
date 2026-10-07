@@ -163,6 +163,17 @@ export const uploadDocument = async (
   return mapDocument(response);
 };
 
+export const deleteDocument = async (
+  documentId: string,
+  accessToken?: string,
+): Promise<void> => {
+  await request<IApiDocument>(
+    `/api/documents/${encodeURIComponent(documentId)}`,
+    { method: "DELETE" },
+    accessToken,
+  );
+};
+
 export const searchDocuments = async (
   params: DocumentSearchParams,
   accessToken?: string,

@@ -92,6 +92,8 @@ class DocumentRepository(Protocol):
 
     def get_document(self, document_id: str) -> dict[str, Any] | None: ...
 
+    def delete_document(self, document_id: str) -> dict[str, Any] | None: ...
+
     def list_chunks(self, document_ids: set[str] | None = None) -> list[dict[str, Any]]: ...
 
     def file_path(self, document_id: str) -> Path | None: ...
@@ -195,6 +197,12 @@ class DocumentService:
     def list_documents(self) -> dict[str, Any]:
         documents = [self._public_document(item) for item in self._repository.list_documents()]
         return {"items": documents, "total": len(documents)}
+
+    def delete_document(self, document_id: str) -> dict[str, Any]:
+        document = self._repository.delete_document(document_id)
+        if document is None:
+            raise DocumentNotFoundError("Документ не найден.")
+        return self._public_document(document)
 
     def search(
         self,

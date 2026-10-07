@@ -134,6 +134,52 @@ class JsonDocumentRepository:
                 None,
             )
 
+    def delete_document(self, document_id: str) -> dict[str, Any] | None:
+        with self._lock:
+            index = self._read_index()
+            document = next(
+                (
+                    item
+                    for item in index["documents"]
+                    if item.get("id") == document_id
+                ),
+                None,
+            )
+            if document is None:
+                return None
+
+            next_index = {
+                "documents": [
+                    item for item in index["documents"] if item.get("id") != document_id
+                ],
+                "chunks": [
+                    item
+                    for item in index["chunks"]
+                    if item.get("document_id") != document_id
+                ],
+            }
+            file_path = self._stored_file_path(document)
+            removed_path = self._temporary_dir / f"{document_id}.deleting"
+            file_was_moved = False
+
+            if file_path is not None and file_path.is_file():
+                self._ensure_directories()
+                removed_path.unlink(missing_ok=True)
+                file_path.replace(removed_path)
+                file_was_moved = True
+
+            try:
+                self._write_index(next_index)
+            except Exception:
+                if file_was_moved:
+                    removed_path.replace(file_path)
+                raise
+
+            if file_was_moved:
+                removed_path.unlink(missing_ok=True)
+
+            return document
+
     def list_chunks(self, document_ids: set[str] | None = None) -> list[dict[str, Any]]:
         with self._lock:
             chunks = self._read_index()["chunks"]
@@ -145,13 +191,16 @@ class JsonDocumentRepository:
         document = self.get_document(document_id)
         if document is None:
             return None
+        candidate = self._stored_file_path(document)
+        if candidate is None or not candidate.is_file():
+            return None
+        return candidate
+
+    def _stored_file_path(self, document: dict[str, Any]) -> Path | None:
         stored_filename = str(document.get("stored_filename", ""))
         if not stored_filename or Path(stored_filename).name != stored_filename:
             return None
-        candidate = self._files_dir / stored_filename
-        if not candidate.is_file():
-            return None
-        return candidate
+        return self._files_dir / stored_filename
 
     def _ensure_directories(self) -> None:
         self._files_dir.mkdir(parents=True, exist_ok=True)

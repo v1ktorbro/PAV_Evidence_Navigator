@@ -8,6 +8,7 @@ import pytest
 from backend.app.application.document_service import (
     DocumentCapacityError,
     DocumentLimits,
+    DocumentNotFoundError,
     DocumentService,
     DocumentTextUnavailableError,
     ExtractedPdf,
@@ -116,6 +117,25 @@ def test_rejected_upload_leaves_no_pdf_or_index_entry(tmp_path):
     assert service.list_documents() == {"items": [], "total": 0}
     assert list((tmp_path / "documents" / "files").glob("*.pdf")) == []
     assert list((tmp_path / "documents" / "temporary").iterdir()) == []
+
+
+def test_delete_document_removes_its_file_and_search_fragments(tmp_path):
+    service = make_service(tmp_path, [(1, "ПАВ уменьшил натяжение.")])
+    uploaded = service.upload(
+        filename="chemistry.pdf",
+        content_type="application/pdf",
+        source=BytesIO(valid_pdf_bytes()),
+    )
+
+    deleted = service.delete_document(uploaded["id"])
+
+    assert deleted["id"] == uploaded["id"]
+    assert service.list_documents() == {"items": [], "total": 0}
+    assert list((tmp_path / "documents" / "files").glob("*.pdf")) == []
+    with pytest.raises(DocumentNotFoundError):
+        service.search(query="ПАВ", document_ids=[uploaded["id"]], limit=10)
+    with pytest.raises(DocumentNotFoundError):
+        service.delete_document(uploaded["id"])
 
 
 def test_pdf_without_embedded_text_is_discarded(tmp_path):

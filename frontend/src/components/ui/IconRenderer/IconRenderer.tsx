@@ -13,6 +13,7 @@ import ExternalLinkIcon from "./icons/ExternalLink";
 import PavLogoIcon from "./icons/PavLogo";
 import QuestionIcon from "./icons/Question";
 import ReloadIcon from "./icons/Reload";
+import RemoveIcon from "./icons/Remove";
 import SynapseResearchIcon from "./icons/SynapseResearch";
 
 export type IIconRendererTypes =
@@ -24,6 +25,7 @@ export type IIconRendererTypes =
   | "pavLogo"
   | "question"
   | "reload"
+  | "remove"
   | "synapseResearch";
 
 export const ICONS_ENUM: Record<
@@ -38,6 +40,7 @@ export const ICONS_ENUM: Record<
   pavLogo: PavLogoIcon,
   question: QuestionIcon,
   reload: ReloadIcon,
+  remove: RemoveIcon,
   synapseResearch: SynapseResearchIcon,
 } as const;
 

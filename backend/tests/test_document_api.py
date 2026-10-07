@@ -89,6 +89,12 @@ def test_document_routes_upload_list_search_and_open_source(client_with_document
     assert file_response.headers["x-content-type-options"] == "nosniff"
     assert file_response.content.startswith(b"%PDF-")
 
+    deleted = client_with_document_store.delete(f"/api/documents/{uploaded['id']}")
+    assert deleted.status_code == 200
+    assert deleted.json()["id"] == uploaded["id"]
+    assert client_with_document_store.get("/api/documents").json()["total"] == 0
+    assert client_with_document_store.get(f"/api/documents/{uploaded['id']}/file").status_code == 404
+
 
 def test_document_routes_map_invalid_size_and_unknown_documents(client_with_document_store, monkeypatch, tmp_path):
     invalid = client_with_document_store.post(
@@ -122,6 +128,7 @@ def test_document_routes_map_invalid_size_and_unknown_documents(client_with_docu
         ),
         ("GET", "/api/documents", {}),
         ("POST", "/api/documents/search", {"json": {"query": "ПАВ температура"}}),
+        ("DELETE", "/api/documents/DOC-UNKNOWN", {}),
         ("GET", "/api/documents/DOC-UNKNOWN/file", {}),
     ],
 )
