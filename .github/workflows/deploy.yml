@@ -121,4 +121,4 @@ jobs:
       - name: Verify API health
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
-        run: curl --fail --retry 12 --retry-delay 5 "http://$VPS_HOST/api/health"
+        run: curl --fail --retry 12 --retry-delay 5 --retry-connrefused "http://$VPS_HOST/api/health"
