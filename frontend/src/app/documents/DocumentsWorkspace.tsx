@@ -834,7 +834,19 @@ const DocumentsWorkspace = () => {
                           onClick={() => void handleOpenSource(item.citation)}
                           disabled={isOpeningSource}
                         >
-                          {isOpeningSource ? "Открываем…" : "Открыть источник"}
+                          {isOpeningSource ? (
+                            "Открываем…"
+                          ) : (
+                            <>
+                              Открыть источник
+                              <span
+                                className={scss.sourceLinkIcon}
+                                aria-hidden="true"
+                              >
+                                <IconRenderer icon="externalLink" />
+                              </span>
+                            </>
+                          )}
                         </button>
                       </div>
                       <blockquote>{item.excerpt}</blockquote>
