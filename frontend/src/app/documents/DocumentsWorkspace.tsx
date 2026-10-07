@@ -72,6 +72,7 @@ const formatDocumentCount = (count: number) => {
 
 const DocumentsWorkspace = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const searchResultsRef = useRef<HTMLElement>(null);
   const documentsRef = useRef<DocumentMetadata[]>([]);
   const hasResolvedInitialDocuments = useRef(false);
   const [documents, setDocuments] = useState<DocumentMetadata[]>();
@@ -150,6 +151,21 @@ const DocumentsWorkspace = () => {
   useEffect(() => {
     void loadDocuments();
   }, [loadDocuments]);
+
+  useEffect(() => {
+    if (!searchResult || isSearching) return;
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      searchResultsRef.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [isSearching, searchResult]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(Array.from(event.target.files ?? []));
@@ -703,7 +719,11 @@ const DocumentsWorkspace = () => {
         )}
 
         {activeView === "search" && searchResult && !isSearching && (
-          <section className={scss.searchResults} aria-live="polite">
+          <section
+            ref={searchResultsRef}
+            className={scss.searchResults}
+            aria-live="polite"
+          >
             <div className={scss.resultsHeading}>
               <div>
                 <p className={scss.eyebrow}>Кандидаты на доказательства</p>
