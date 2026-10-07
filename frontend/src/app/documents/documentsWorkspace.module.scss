@@ -85,6 +85,12 @@
 }
 
 .content {
+  --document-item-min-height: 6.5rem;
+  --document-list-min-height: calc(
+    3 * var(--document-item-min-height) + 2 * 0.75rem
+  );
+  --selection-panel-controls-height: 12.5rem;
+
   min-height: 0;
 }
 
@@ -105,12 +111,6 @@
 }
 
 .searchWorkspace {
-  --document-item-min-height: 6.5rem;
-  --document-list-min-height: calc(
-    3 * var(--document-item-min-height) + 2 * 0.75rem
-  );
-  --selection-panel-controls-height: 12.5rem;
-
   grid-template-rows:
     minmax(
       calc(
@@ -370,6 +370,7 @@
 .documentList {
   grid-template-columns: minmax(0, 1fr);
   min-height: var(--document-list-min-height);
+  max-height: var(--document-list-min-height);
   padding-right: 0.5rem;
   overflow-y: auto;
   scrollbar-gutter: stable;
@@ -488,6 +489,11 @@
 }
 
 .resultList {
+  min-height: var(--document-list-min-height);
+  max-height: var(--document-list-min-height);
+  padding-right: 0.5rem;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   counter-reset: citations;
 }
 
