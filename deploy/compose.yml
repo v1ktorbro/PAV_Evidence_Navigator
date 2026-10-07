@@ -7,6 +7,8 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 8091
+      DOCUMENT_STORE_DIR: /service/var/documents
+      DOCUMENT_ACCESS_TOKEN: ${DOCUMENT_ACCESS_TOKEN:?DOCUMENT_ACCESS_TOKEN is required}
     env_file:
       - ./backend.env
     expose:
@@ -23,6 +25,8 @@ services:
       retries: 3
     networks:
       - app
+    volumes:
+      - document_store:/service/var/documents
 
   frontend:
     image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER is required}/pav-evidence-navigator-frontend:${IMAGE_TAG:?IMAGE_TAG is required}
@@ -41,7 +45,7 @@ services:
       - app
 
   caddy:
-    image: caddy:2.8-alpine
+    image: caddy:2.10-alpine
     restart: unless-stopped
     depends_on:
       backend:
@@ -67,3 +71,4 @@ networks:
 volumes:
   caddy_data:
   caddy_config:
+  document_store:

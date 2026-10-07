@@ -22,3 +22,6 @@ Thumbs.db
 frontend/node_modules/
 frontend/dist/
 frontend/.env.local
+
+# Locally uploaded documents and their searchable index
+backend/data/documents/

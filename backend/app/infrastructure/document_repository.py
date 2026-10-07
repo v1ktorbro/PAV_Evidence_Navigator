@@ -1,0 +1,179 @@
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+from threading import RLock
+from typing import Any, BinaryIO
+
+from backend.app.application.document_service import (
+    DocumentCapacityError,
+    DocumentTooLargeError,
+    StagedDocument,
+    UnsupportedDocumentError,
+)
+
+
+class JsonDocumentRepository:
+    """Single-process local adapter for a small, persistent document corpus."""
+
+    _COPY_CHUNK_BYTES = 64 * 1024
+    _PDF_HEADER_SCAN_BYTES = 1024
+
+    def __init__(self, store_dir: Path) -> None:
+        self._store_dir = store_dir
+        self._files_dir = store_dir / "files"
+        self._temporary_dir = store_dir / "temporary"
+        self._index_file = store_dir / "index.json"
+        self._lock = RLock()
+
+    def ensure_capacity(self, *, max_documents: int) -> None:
+        """Fail before upload work when the local corpus has no free slot.
+
+        The check intentionally does not reserve a slot: extraction can be
+        expensive, and commit performs the same check again for concurrent
+        uploads that passed this preflight check together.
+        """
+        with self._lock:
+            index = self._read_index()
+            if len(index["documents"]) >= max_documents:
+                raise DocumentCapacityError(
+                    "Достигнут лимит документов локального корпуса."
+                )
+
+    def stage_upload(
+        self,
+        *,
+        document_id: str,
+        source: BinaryIO,
+        max_upload_bytes: int,
+    ) -> StagedDocument:
+        self._ensure_directories()
+        temporary_path = self._temporary_dir / f"{document_id}.uploading"
+        digest = hashlib.sha256()
+        size_bytes = 0
+        header = bytearray()
+
+        try:
+            with temporary_path.open("xb") as destination:
+                while True:
+                    part = source.read(self._COPY_CHUNK_BYTES)
+                    if not part:
+                        break
+                    size_bytes += len(part)
+                    if size_bytes > max_upload_bytes:
+                        raise DocumentTooLargeError(
+                            f"Размер PDF превышает лимит {max_upload_bytes // (1024 * 1024)} МБ."
+                        )
+                    if len(header) < self._PDF_HEADER_SCAN_BYTES:
+                        header.extend(part[: self._PDF_HEADER_SCAN_BYTES - len(header)])
+                        if len(header) >= 5 and b"%PDF-" not in header:
+                            raise UnsupportedDocumentError("Файл не похож на корректный PDF.")
+                    digest.update(part)
+                    destination.write(part)
+
+            if not header or b"%PDF-" not in header:
+                raise UnsupportedDocumentError("Файл не похож на корректный PDF.")
+            return StagedDocument(
+                document_id=document_id,
+                path=temporary_path,
+                size_bytes=size_bytes,
+                sha256=digest.hexdigest(),
+            )
+        except Exception:
+            temporary_path.unlink(missing_ok=True)
+            raise
+
+    def discard_staged(self, staged: StagedDocument) -> None:
+        staged.path.unlink(missing_ok=True)
+
+    def commit(
+        self,
+        *,
+        staged: StagedDocument,
+        document: dict[str, Any],
+        chunks: list[dict[str, Any]],
+        max_documents: int,
+    ) -> None:
+        with self._lock:
+            index = self._read_index()
+            if len(index["documents"]) >= max_documents:
+                raise DocumentCapacityError(
+                    "Достигнут лимит документов локального корпуса."
+                )
+
+            final_path = self._files_dir / str(document["stored_filename"])
+            if final_path.exists():
+                raise DocumentCapacityError("Идентификатор документа уже занят.")
+
+            staged.path.replace(final_path)
+            index["documents"].append(document)
+            index["chunks"].extend(chunks)
+            try:
+                self._write_index(index)
+            except Exception:
+                final_path.unlink(missing_ok=True)
+                raise
+
+    def list_documents(self) -> list[dict[str, Any]]:
+        with self._lock:
+            return sorted(
+                self._read_index()["documents"],
+                key=lambda item: str(item.get("uploaded_at", "")),
+                reverse=True,
+            )
+
+    def get_document(self, document_id: str) -> dict[str, Any] | None:
+        with self._lock:
+            return next(
+                (
+                    item
+                    for item in self._read_index()["documents"]
+                    if item.get("id") == document_id
+                ),
+                None,
+            )
+
+    def list_chunks(self, document_ids: set[str] | None = None) -> list[dict[str, Any]]:
+        with self._lock:
+            chunks = self._read_index()["chunks"]
+            if document_ids is None:
+                return chunks
+            return [item for item in chunks if item.get("document_id") in document_ids]
+
+    def file_path(self, document_id: str) -> Path | None:
+        document = self.get_document(document_id)
+        if document is None:
+            return None
+        stored_filename = str(document.get("stored_filename", ""))
+        if not stored_filename or Path(stored_filename).name != stored_filename:
+            return None
+        candidate = self._files_dir / stored_filename
+        if not candidate.is_file():
+            return None
+        return candidate
+
+    def _ensure_directories(self) -> None:
+        self._files_dir.mkdir(parents=True, exist_ok=True)
+        self._temporary_dir.mkdir(parents=True, exist_ok=True)
+
+    def _read_index(self) -> dict[str, list[dict[str, Any]]]:
+        if not self._index_file.exists():
+            return {"documents": [], "chunks": []}
+        data = json.loads(self._index_file.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("Индекс документов имеет неподдерживаемый формат.")
+        documents = data.get("documents")
+        chunks = data.get("chunks")
+        if not isinstance(documents, list) or not isinstance(chunks, list):
+            raise ValueError("Индекс документов имеет неподдерживаемый формат.")
+        return {"documents": documents, "chunks": chunks}
+
+    def _write_index(self, index: dict[str, list[dict[str, Any]]]) -> None:
+        self._ensure_directories()
+        temporary_index = self._index_file.with_suffix(".tmp")
+        temporary_index.write_text(
+            json.dumps(index, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        temporary_index.replace(self._index_file)

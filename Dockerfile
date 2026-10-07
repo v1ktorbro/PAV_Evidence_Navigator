@@ -10,7 +10,9 @@ COPY backend ./backend
 COPY .env.example ./.env.example
 COPY pytest.ini ./pytest.ini
 
-RUN useradd --create-home appuser && chown -R appuser /service
+RUN useradd --create-home appuser \
+    && mkdir -p /service/var/documents \
+    && chown -R appuser:appuser /service
 USER appuser
 
 EXPOSE 8091

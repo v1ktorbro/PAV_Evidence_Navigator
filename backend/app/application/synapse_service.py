@@ -18,7 +18,7 @@ class SynapseService:
         self._evidence_service = evidence_service
 
     def start_research(self, question: str, experiment_ids: list[str]) -> dict[str, Any]:
-        rows = self._evidence_service.selected_rows(experiment_ids)
+        rows = self._evidence_service.selected_rows(question, experiment_ids)
         return self._public_project(self._client.create_project(brief_for_synapse(question, rows)))
 
     def get_project(self, project_id: str) -> dict[str, Any]:

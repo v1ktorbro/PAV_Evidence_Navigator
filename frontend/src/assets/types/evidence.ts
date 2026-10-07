@@ -37,23 +37,37 @@ export interface EvidenceResponse {
   items: EvidenceItem[];
   summary: EvidenceSummary;
 }
+
+export interface AnalysisComparison {
+  direct_pairs: string[][];
+  restricted_pairs: Array<{
+    left: string;
+    right: string;
+    reason: string;
+  }>;
+  direct_comparison_allowed: boolean;
+}
+
+export interface AnalysisAnswer {
+  confirmed_facts: Array<{
+    experiment_id: string;
+    metric: string;
+    value: number;
+    unit: string;
+    conditions: Record<string, string | number | null>;
+    citation: { document: string; location: string; url: string };
+  }>;
+  limitations: Array<{ experiment_id: string; reason: string }>;
+  comparison: AnalysisComparison;
+  external_escalation: boolean;
+  retry_policy: string;
+}
+
 export interface AnalysisResponse {
   question: string;
   items: EvidenceItem[];
   summary: EvidenceSummary;
-  answer: {
-    confirmed_facts: Array<{
-      experiment_id: string;
-      metric: string;
-      value: number;
-      unit: string;
-      conditions: Record<string, string | number | null>;
-      citation: { document: string; location: string; url: string };
-    }>;
-    limitations: Array<{ experiment_id: string; reason: string }>;
-    external_escalation: boolean;
-    retry_policy: string;
-  };
+  answer: AnalysisAnswer;
   synapse_prompt: string;
 }
 

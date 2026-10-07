@@ -9,8 +9,11 @@ other path.
 
 1. Copy `bootstrap-vps.sh` to the Ubuntu VPS and run it as `root`.
 2. Copy `.env.example` to `/opt/pav/.env` and `backend.env.example` to
-   `/opt/pav/backend.env`. Fill the latter with the production Synapse values
-   if that integration is used.
+   `/opt/pav/backend.env`. Add a long random `DOCUMENT_ACCESS_TOKEN` to
+   `/opt/pav/.env`; compose refuses to start the production backend without it.
+   Clients use it as `Authorization: Bearer <token>` for every `/api/documents`
+   endpoint. Fill `backend.env` with the production Synapse values if that
+   integration is used.
 3. Append the public half of the dedicated GitHub Actions deploy key to
    `/root/.ssh/authorized_keys`.
 4. Configure the GitHub repository secrets below.
@@ -30,8 +33,9 @@ redeploy. Caddy then enables HTTPS and renews certificates automatically.
 
 The workflow publishes images to GitHub Container Registry (GHCR). The VPS
 uses `GHCR_PULL_TOKEN` only to pull a new release and logs out immediately
-afterward. Do not place application secrets in images; they stay in
-`/opt/pav/backend.env` on the VPS.
+afterward. Do not place application secrets in images; the document token stays
+in `/opt/pav/.env` and other backend secrets stay in `/opt/pav/backend.env` on
+the VPS.
 
 ## Release behavior
 

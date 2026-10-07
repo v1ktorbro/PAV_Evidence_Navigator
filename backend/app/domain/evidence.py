@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from itertools import combinations
+import re
 from typing import Any
 
 
@@ -16,6 +17,168 @@ REQUIRED_MEASUREMENT_CONDITIONS = (
     "salinity_g_l",
     "rock_type",
 )
+
+
+# This is deliberately a small, inspectable lexical vocabulary for the
+# synthetic demonstration corpus.  It is not a semantic model and never
+# guesses a fact when the question has no matching corpus terms.
+_TOKEN_PATTERN = re.compile(r"\d+(?:[.,]\d+)?|[^\W_]+(?:-[^\W_]+)*", re.UNICODE)
+_STOP_WORDS = frozenset(
+    {
+        "а",
+        "без",
+        "были",
+        "был",
+        "в",
+        "во",
+        "вопрос",
+        "где",
+        "для",
+        "есть",
+        "и",
+        "из",
+        "или",
+        "какая",
+        "какие",
+        "какой",
+        "каково",
+        "как",
+        "ли",
+        "можно",
+        "на",
+        "не",
+        "о",
+        "об",
+        "опыт",
+        "опыты",
+        "подтвержден",
+        "подтверждена",
+        "подтверждены",
+        "по",
+        "при",
+        "про",
+        "результат",
+        "результаты",
+        "с",
+        "со",
+        "у",
+        "что",
+        "это",
+    }
+)
+_GENERIC_QUERY_TERMS = frozenset({"пав", "павы", "данные", "корпус", "сопостав"})
+_TERM_CONCEPTS = (
+    ("нефтеотда", "oil_recovery"),
+    ("адсорб", "adsorption"),
+    ("вязк", "viscosity"),
+    ("реолог", "viscosity"),
+    ("межфаз", "interfacial_tension"),
+    ("натяжен", "interfacial_tension"),
+    ("ift", "interfacial_tension"),
+    ("кернов", "core_flood"),
+    ("вытеснен", "core_flood"),
+    ("core", "core_flood"),
+    ("flood", "core_flood"),
+    ("температур", "temperature"),
+    ("минерализ", "salinity"),
+    ("солен", "salinity"),
+    ("проницаем", "permeability"),
+    ("концентрац", "concentration"),
+    ("карбонат", "carbonate"),
+    ("терриген", "terrigenous"),
+    ("анион", "anionic"),
+    ("неион", "nonionic"),
+    ("амфотер", "amphoteric"),
+    ("щелоч", "alkali"),
+    ("полимер", "polymer"),
+)
+
+
+def _normalise_term(token: str) -> str:
+    """Reduce known corpus terms to stable, human-auditable concepts."""
+    normalised = token.casefold().replace("ё", "е").replace(",", ".")
+    # Keep formulation names and experiment ids intact: ``ПАВ-A`` and
+    # ``LAB-001`` identify a particular record more precisely than their parts.
+    if "-" in normalised:
+        return normalised
+    if normalised == "ph":
+        return "ph"
+    for prefix, concept in _TERM_CONCEPTS:
+        if normalised.startswith(prefix):
+            return concept
+    return normalised
+
+
+def _terms(text: object, *, omit_generic: bool = False) -> set[str]:
+    tokens = {
+        _normalise_term(match.group(0))
+        for match in _TOKEN_PATTERN.finditer(str(text))
+    }
+    meaningful = {
+        token
+        for token in tokens
+        if token not in _STOP_WORDS
+        and (
+            token == "ph"
+            or token.replace(".", "", 1).isdigit()
+            or len(token) >= 3
+        )
+    }
+    if omit_generic:
+        meaningful.difference_update(_GENERIC_QUERY_TERMS)
+    return meaningful
+
+
+def _searchable_fields(row: dict[str, Any]) -> tuple[tuple[int, object], ...]:
+    """Expose each release-safe record's searchable text with fixed weights."""
+    formulation = row.get("formulation", {})
+    conditions = row.get("conditions", {})
+    result = row.get("result", {})
+    source = row.get("source", {})
+    condition_text = " ".join(
+        str(value)
+        for value in (
+            f"температура {conditions.get('temperature_c', '')}",
+            f"минерализация {conditions.get('salinity_g_l', '')}",
+            f"pH {conditions.get('ph', '')}",
+            f"порода {conditions.get('rock_type', '')}",
+            f"проницаемость {conditions.get('permeability_md', '')}",
+            f"нефть {conditions.get('oil', '')}",
+        )
+    )
+    return (
+        (4, f"{row.get('id', '')} {formulation.get('name', '')} {formulation.get('surfactant_class', '')}"),
+        (3, f"{result.get('label', '')} {result.get('unit', '')}"),
+        (2, condition_text),
+        (2, row.get("method", "")),
+        (1, f"{source.get('document', '')} {source.get('excerpt', '')}"),
+    )
+
+
+def _lexical_relevance_score(question_terms: set[str], row: dict[str, Any]) -> int:
+    weights: dict[str, int] = {}
+    for weight, field in _searchable_fields(row):
+        for term in _terms(field):
+            weights[term] = max(weight, weights.get(term, 0))
+    return sum(weights.get(term, 0) for term in question_terms)
+
+
+def select_relevant_evidence(
+    question: str, rows: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Select only records with a deterministic lexical match to a question.
+
+    The function intentionally has no fallback to the entire corpus.  A broad
+    or unsupported question therefore produces no grounded facts instead of
+    silently presenting every released record as evidence.
+    """
+    question_terms = _terms(question, omit_generic=True)
+    ranked = [
+        (score, position, row)
+        for position, row in enumerate(rows)
+        if (score := _lexical_relevance_score(question_terms, row)) > 0
+    ]
+    return [row for _, _, row in sorted(ranked, key=lambda item: (-item[0], item[1]))]
 
 
 def traceability_gaps(row: dict[str, Any]) -> list[str]:
@@ -155,6 +318,17 @@ def evidence_answer(question: str, selected: list[dict[str, Any]]) -> dict[str, 
         for row in selected
         if row["comparability"]["status"] != "comparable"
     ]
+    if not selected:
+        limitations.append(
+            {
+                "experiment_id": "CORPUS",
+                "reason": (
+                    "В выпущенном корпусе не найдено записей с лексическими "
+                    "совпадениями с вопросом; подтверждённый вывод невозможен. "
+                    "Уточните вещество, показатель или условия опыта."
+                ),
+            }
+        )
     return {
         "question": question,
         "confirmed_facts": facts,
@@ -170,6 +344,8 @@ def brief_for_synapse(question: str, selected: list[dict[str, Any]]) -> str:
         f"- {row['id']}: {row['formulation']['name']}; {row['conditions']['temperature_c']} °C; {row['conditions']['salinity_g_l']} г/л; {row['conditions']['rock_type']}; результат: {row['result']['label']} = {row['result']['value']} {row['result']['unit']}; источник: {row['source']['document']}, {row['source']['location']} ({row['source']['url']})."
         for row in selected
     )
+    if not evidence:
+        evidence = "- В выпущенном корпусе нет записей, лексически соответствующих вопросу."
     return f"""Ты инженер-эксперт по химическим методам увеличения нефтеотдачи (EOR).
 
 Нужно ответить на вопрос по ограниченному корпусу лабораторных опытов ПАВ:

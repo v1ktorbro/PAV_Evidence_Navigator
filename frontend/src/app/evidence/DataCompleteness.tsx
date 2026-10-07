@@ -8,6 +8,7 @@ import {
   getEvidence,
 } from "../../api/evidence";
 import type {
+  AnalysisAnswer,
   EvidenceResponse,
   EvidenceSummary,
 } from "../../assets/types/evidence";
@@ -17,6 +18,7 @@ import Loader from "../../components/ui/Loader/Loader";
 import { getAnalysisFlow } from "./analysisFlow";
 
 interface AnalysisResultValue {
+  answer: AnalysisAnswer;
   summary: EvidenceSummary;
   source_fragments: Array<{ experiment: string; excerpt: string }>;
 }
@@ -24,6 +26,64 @@ interface AnalysisResultValue {
 type Result =
   | { title: string; value: AnalysisResultValue; kind: "analysis" }
   | { title: string; value: unknown; kind: "generic" };
+
+const CONDITION_LABELS: Record<string, string> = {
+  temperature_c: "Температура",
+  salinity_g_l: "Минерализация",
+  rock_type: "Материал образца",
+  permeability_md: "Проницаемость",
+};
+
+const CONDITION_UNITS: Record<string, string> = {
+  temperature_c: "°C",
+  salinity_g_l: "г/л",
+  permeability_md: "мД",
+};
+
+const formatConditionLabel = (condition: string) =>
+  CONDITION_LABELS[condition] ?? condition.replaceAll("_", " ");
+
+const formatConditionValue = (
+  condition: string,
+  value: string | number | null,
+) => {
+  if (value === null) return "Не указано";
+
+  const unit = CONDITION_UNITS[condition];
+  if (typeof value === "number" && unit) return `${value} ${unit}`;
+
+  return String(value);
+};
+
+const getSafeCitationLink = (url: string) => {
+  if (url.startsWith("/source/")) {
+    return url;
+  }
+
+  try {
+    const parsedUrl = new URL(url);
+
+    if (parsedUrl.protocol === "https:" || parsedUrl.protocol === "http:") {
+      return parsedUrl.toString();
+    }
+  } catch {
+    // A malformed citation remains visible as text but must not become a link.
+  }
+
+  return undefined;
+};
+
+const getAnswerConclusion = (answer: AnalysisAnswer) => {
+  if (answer.confirmed_facts.length === 0) {
+    return "Для этого вопроса в выбранных материалах не найдено подтверждённых фактов.";
+  }
+
+  if (answer.comparison.direct_comparison_allowed) {
+    return `В ответе использовано ${answer.confirmed_facts.length} подтверждённых фактов. Некоторые из выбранных опытов можно сопоставлять напрямую.`;
+  }
+
+  return `В ответе использовано ${answer.confirmed_facts.length} подтверждённых фактов. Их можно проверить по источникам, но прямое сопоставление выбранных опытов не подтверждено.`;
+};
 
 const DataCompleteness = () => {
   const [flow] = useState(getAnalysisFlow);
@@ -78,9 +138,10 @@ const DataCompleteness = () => {
     try {
       const response = await createAnalysis(flow.question, flow.selectedIds);
       setResult({
-        title: "Проверяемая подборка",
+        title: "Ответ с доказательствами",
         kind: "analysis",
         value: {
+          answer: response.answer,
           summary: response.summary,
           source_fragments: response.items.map((item) => ({
             experiment: item.id,
@@ -247,6 +308,118 @@ const DataCompleteness = () => {
           </div>
           {result.kind === "analysis" ? (
             <div className={scss.analysisResult}>
+              <section
+                className={scss.conclusion}
+                aria-labelledby="answer-conclusion-heading"
+              >
+                <h3 id="answer-conclusion-heading">Краткий вывод</h3>
+                <p>{getAnswerConclusion(result.value.answer)}</p>
+              </section>
+
+              <section aria-labelledby="confirmed-facts-heading">
+                <h3 id="confirmed-facts-heading">Подтверждённые факты</h3>
+                {result.value.answer.confirmed_facts.length > 0 ? (
+                  <ol className={scss.factList}>
+                    {result.value.answer.confirmed_facts.map((fact) => {
+                      const sourceFragment =
+                        result.value.source_fragments.find(
+                          (fragment) => fragment.experiment === fact.experiment_id,
+                        );
+                      const citationLink = getSafeCitationLink(
+                        fact.citation.url,
+                      );
+
+                      return (
+                        <li key={fact.experiment_id} className={scss.factCard}>
+                          <div className={scss.factHeader}>
+                            <p className={scss.experimentId}>
+                              Опыт {fact.experiment_id}
+                            </p>
+                            <p className={scss.factResult}>
+                              <span>{fact.metric}</span>
+                              <strong>
+                                {fact.value} {fact.unit}
+                              </strong>
+                            </p>
+                          </div>
+
+                          <div>
+                            <h4>Условия эксперимента</h4>
+                            <dl className={scss.conditions}>
+                              {Object.entries(fact.conditions).map(
+                                ([condition, value]) => (
+                                  <div key={condition}>
+                                    <dt>{formatConditionLabel(condition)}</dt>
+                                    <dd>
+                                      {formatConditionValue(condition, value)}
+                                    </dd>
+                                  </div>
+                                ),
+                              )}
+                            </dl>
+                          </div>
+
+                          <div className={scss.citation}>
+                            <h4>Источник</h4>
+                            {citationLink ? (
+                              <a
+                                href={citationLink}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {fact.citation.document}, {fact.citation.location}
+                              </a>
+                            ) : (
+                              <p>
+                                {fact.citation.document}, {fact.citation.location}
+                              </p>
+                            )}
+                            {sourceFragment && (
+                              <blockquote>{sourceFragment.excerpt}</blockquote>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                ) : (
+                  <p className={scss.emptyFacts}>
+                    В ответе нет подтверждённых фактов, поэтому вывод делать
+                    нельзя.
+                  </p>
+                )}
+              </section>
+
+              <section aria-labelledby="limitations-heading">
+                <h3 id="limitations-heading">Ограничения ответа</h3>
+                {result.value.answer.limitations.length > 0 ||
+                result.value.answer.comparison.restricted_pairs.length > 0 ? (
+                  <ul className={scss.limitationList}>
+                    {result.value.answer.limitations.map((limitation) => (
+                      <li key={`experiment-${limitation.experiment_id}`}>
+                        <strong>Опыт {limitation.experiment_id}.</strong>{" "}
+                        {limitation.reason}
+                      </li>
+                    ))}
+                    {result.value.answer.comparison.restricted_pairs.map(
+                      (pair) => (
+                        <li key={`pair-${pair.left}-${pair.right}`}>
+                          <strong>
+                            Сопоставление {pair.left} и {pair.right}.
+                          </strong>{" "}
+                          {pair.reason}
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                ) : (
+                  <p className={scss.noLimitations}>
+                    Ограничений, связанных с неполнотой данных или статусом
+                    сопоставимости, не обнаружено.
+                  </p>
+                )}
+              </section>
+
               <dl className={scss.summary}>
                 <div>
                   <dt>Всего опытов</dt>
@@ -277,19 +450,9 @@ const DataCompleteness = () => {
                 </div>
               )}
 
-              <p className={scss.warning}>{result.value.summary.warning}</p>
-
-              <div>
-                <h3>Фрагменты источников</h3>
-                <ul className={scss.sourceList}>
-                  {result.value.source_fragments.map((fragment) => (
-                    <li key={fragment.experiment} className={scss.sourceCard}>
-                      <strong>{fragment.experiment}</strong>
-                      <p>{fragment.excerpt}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {result.value.summary.warning && (
+                <p className={scss.warning}>{result.value.summary.warning}</p>
+              )}
             </div>
           ) : (
             <pre>

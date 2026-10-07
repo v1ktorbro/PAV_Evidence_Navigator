@@ -1,12 +1,26 @@
 from __future__ import annotations
 
+from secrets import compare_digest
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
+from backend.app.application.document_service import (
+    DocumentCapacityError,
+    DocumentExtractionError,
+    DocumentLimitError,
+    DocumentLimits,
+    DocumentNotFoundError,
+    DocumentService,
+    DocumentTextUnavailableError,
+    DocumentTooLargeError,
+    UnsupportedDocumentError,
+)
 from backend.app.application.evidence_service import (
     EvidenceNotFoundError,
+    EvidenceSelectionNotFoundError,
     EvidenceService,
 )
 from backend.app.application.evidence_review_service import (
@@ -20,10 +34,12 @@ from backend.app.application.public_source_service import PublicSourceService
 from backend.app.application.synapse_service import SynapseService
 from backend.app.config import settings
 from backend.app.infrastructure.control_question_repository import JsonControlQuestionRepository
+from backend.app.infrastructure.document_repository import JsonDocumentRepository
 from backend.app.infrastructure.evidence_repository import JsonEvidenceRepository
 from backend.app.infrastructure.evidence_review_repository import JsonEvidenceReviewRepository
 from backend.app.infrastructure.public_source_gateway import HttpPublicSourceGateway
 from backend.app.infrastructure.public_source_repository import JsonPublicSourceRepository
+from backend.app.infrastructure.pdf_text_extractor import PypdfTextExtractor
 from backend.app.infrastructure.synapse_client import SynapseClient, SynapseError
 
 router = APIRouter(prefix="/api")
@@ -39,6 +55,53 @@ public_source_service = PublicSourceService(
     JsonPublicSourceRepository(),
     HttpPublicSourceGateway(),
 )
+document_config = settings()
+document_service = DocumentService(
+    JsonDocumentRepository(document_config.document_store_dir),
+    PypdfTextExtractor(),
+    DocumentLimits(
+        max_upload_bytes=document_config.document_max_upload_bytes,
+        max_documents=document_config.document_max_documents,
+        max_pages=document_config.document_max_pages,
+        max_extracted_chars=document_config.document_max_extracted_chars,
+        chunk_chars=document_config.document_chunk_chars,
+        chunk_overlap_chars=document_config.document_chunk_overlap_chars,
+        max_page_content_bytes=document_config.document_max_page_content_bytes,
+    ),
+)
+
+_DOCUMENT_MULTIPART_ENVELOPE_BYTES = 1024 * 1024
+
+
+def require_document_access_token(authorization: str | None = Header(default=None)) -> None:
+    """Require the shared team token when document access is configured."""
+    expected_token = document_config.document_access_token
+    if not expected_token:
+        return
+
+    scheme, separator, presented_token = authorization.partition(" ") if authorization else ("", "", "")
+    if (
+        scheme.casefold() != "bearer"
+        or not separator
+        or not presented_token
+        or not compare_digest(presented_token, expected_token)
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Для доступа к документам требуется токен команды.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+def document_upload_content_length_exceeds_limit(content_length: str | None) -> bool:
+    """Quickly reject known oversized uploads before FastAPI parses multipart data."""
+    if content_length is None:
+        return False
+    try:
+        declared_bytes = int(content_length)
+    except ValueError:
+        return False
+    return declared_bytes > document_config.document_max_upload_bytes + _DOCUMENT_MULTIPART_ENVELOPE_BYTES
 
 
 class AnalysisBody(BaseModel):
@@ -85,6 +148,12 @@ class EvidenceReviewBody(BaseModel):
     citation: CitationBody
 
 
+class DocumentSearchBody(BaseModel):
+    query: str = Field(min_length=2, max_length=1200)
+    document_ids: list[str] = Field(default_factory=list, max_length=50)
+    limit: int = Field(default=10, ge=1, le=20)
+
+
 def synapse_service() -> SynapseService:
     return SynapseService(SynapseClient(settings()), evidence_service)
 
@@ -110,7 +179,10 @@ def evidence_by_id(evidence_id: str) -> dict[str, object]:
 
 @router.post("/analysis")
 def analysis(body: AnalysisBody) -> dict[str, Any]:
-    return evidence_service.analyse(body.question, body.experiment_ids)
+    try:
+        return evidence_service.analyse(body.question, body.experiment_ids)
+    except EvidenceSelectionNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="Не найдены выбранные опыты.") from exc
 
 
 @router.get("/quality/report")
@@ -126,6 +198,66 @@ def control_question_report() -> dict[str, Any]:
 @router.get("/public-sources")
 def public_sources() -> dict[str, Any]:
     return public_source_service.list_current_sources()
+
+
+@router.post(
+    "/documents",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_document_access_token)],
+)
+def upload_document(file: UploadFile = File(...)) -> dict[str, Any]:
+    try:
+        return document_service.upload(
+            filename=file.filename,
+            content_type=file.content_type,
+            source=file.file,
+        )
+    except DocumentTooLargeError as exc:
+        raise HTTPException(status_code=413, detail=str(exc)) from exc
+    except UnsupportedDocumentError as exc:
+        raise HTTPException(status_code=415, detail=str(exc)) from exc
+    except DocumentCapacityError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except (DocumentLimitError, DocumentExtractionError, DocumentTextUnavailableError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.get("/documents", dependencies=[Depends(require_document_access_token)])
+def documents() -> dict[str, Any]:
+    return document_service.list_documents()
+
+
+@router.post("/documents/search", dependencies=[Depends(require_document_access_token)])
+def search_documents(body: DocumentSearchBody) -> dict[str, Any]:
+    try:
+        return document_service.search(
+            query=body.query,
+            document_ids=body.document_ids,
+            limit=body.limit,
+        )
+    except DocumentNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.get(
+    "/documents/{document_id}/file",
+    dependencies=[Depends(require_document_access_token)],
+)
+def document_file(document_id: str) -> FileResponse:
+    try:
+        item = document_service.open_file(document_id)
+    except DocumentNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return FileResponse(
+        item["path"],
+        media_type="application/pdf",
+        filename=item["filename"],
+        content_disposition_type="inline",
+        headers={
+            "Cache-Control": "private, no-store",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @router.get("/evidence-reviews")
@@ -160,6 +292,8 @@ def synapse_config() -> dict[str, Any]:
 def start_synapse_research(body: AnalysisBody) -> dict[str, Any]:
     try:
         return synapse_service().start_research(body.question, body.experiment_ids)
+    except EvidenceSelectionNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="Не найдены выбранные опыты.") from exc
     except SynapseError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 

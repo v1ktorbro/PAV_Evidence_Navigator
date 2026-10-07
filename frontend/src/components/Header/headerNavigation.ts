@@ -9,6 +9,10 @@ export const HEADER_NAVIGATION_ITEMS: IHeaderNavigationItem[] = [
     label: "Доказательная база",
   },
   {
+    href: "/documents",
+    label: "Работа с документами",
+  },
+  {
     href: "/sources",
     label: "Каталог источников",
   },

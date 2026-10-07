@@ -76,6 +76,59 @@ def test_analysis_contains_source_fragments_in_synapse_prompt():
     assert "стр. 14, табл. 4" in response.json()["synapse_prompt"]
 
 
+def test_analysis_without_explicit_ids_uses_lexical_question_relevance():
+    response = client.post(
+        "/api/analysis",
+        json={"question": "Какая вязкость зафиксирована в корпусе?", "experiment_ids": []},
+    )
+
+    assert response.status_code == 200
+    assert [item["id"] for item in response.json()["items"]] == ["LAB-006"]
+    assert response.json()["summary"]["total"] == 1
+
+
+def test_analysis_without_ids_understands_the_ift_alias():
+    response = client.post(
+        "/api/analysis",
+        json={"question": "Какое IFT зафиксировано?", "experiment_ids": []},
+    )
+
+    assert response.status_code == 200
+    assert [fact["experiment_id"] for fact in response.json()["answer"]["confirmed_facts"]] == ["LAB-002"]
+
+
+def test_analysis_explicit_ids_remain_authoritative_over_question_relevance():
+    response = client.post(
+        "/api/analysis",
+        json={"question": "Какая вязкость подтверждена?", "experiment_ids": ["LAB-001"]},
+    )
+
+    assert response.status_code == 200
+    assert [item["id"] for item in response.json()["items"]] == ["LAB-001"]
+
+
+def test_analysis_without_lexical_match_returns_empty_grounded_answer():
+    response = client.post(
+        "/api/analysis",
+        json={"question": "Какие наночастицы использовались?", "experiment_ids": []},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["items"] == []
+    assert body["answer"]["confirmed_facts"] == []
+    assert body["answer"]["limitations"] == [
+        {
+            "experiment_id": "CORPUS",
+            "reason": (
+                "В выпущенном корпусе не найдено записей с лексическими "
+                "совпадениями с вопросом; подтверждённый вывод невозможен. "
+                "Уточните вещество, показатель или условия опыта."
+            ),
+        }
+    ]
+
+
 def test_evidence_by_id_returns_source_fragment():
     response = client.get("/api/evidence/LAB-001")
     assert response.status_code == 200

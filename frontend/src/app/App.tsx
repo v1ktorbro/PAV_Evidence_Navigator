@@ -14,6 +14,7 @@ import QualityDashboard from "./quality/QualityDashboard";
 import EvidenceReviewQueue from "./reviews/EvidenceReviewQueue";
 import EvidenceExtractionForm from "./sources/EvidenceExtractionForm";
 import SourcesCatalog from "./sources/SourcesCatalog";
+import DocumentsWorkspace from "./documents/DocumentsWorkspace";
 
 const App = () => {
   const [synapseConfig, setSynapseConfig] = useState<SynapseConfig>();
@@ -41,6 +42,8 @@ const App = () => {
 
   if (sourceMatch) {
     screen = <SourceViewer evidenceId={decodeURIComponent(sourceMatch[1])} />;
+  } else if (window.location.pathname === "/documents") {
+    screen = <DocumentsWorkspace />;
   } else if (window.location.pathname === "/completeness") {
     screen = <DataCompleteness />;
   } else if (window.location.pathname === "/quality") {

@@ -2,19 +2,22 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
-from fastapi import HTTPException
-
 from backend.app.domain.evidence import (
     brief_for_synapse,
     evidence_answer,
     explain_selection,
     filter_evidence,
     is_releasable,
+    select_relevant_evidence,
 )
 
 
 class EvidenceNotFoundError(Exception):
     """Raised when an evidence record cannot be found in the corpus."""
+
+
+class EvidenceSelectionNotFoundError(Exception):
+    """Raised when explicitly requested evidence records are unavailable."""
 
 
 class EvidenceRepository(Protocol):
@@ -32,7 +35,7 @@ class EvidenceService:
         return {"items": rows, "summary": explain_selection(rows)}
 
     def analyse(self, question: str, experiment_ids: list[str]) -> dict[str, Any]:
-        rows = self._selected_rows(experiment_ids)
+        rows = self._selected_rows(question, experiment_ids)
         return {
             "question": question,
             "items": rows,
@@ -41,8 +44,10 @@ class EvidenceService:
             "synapse_prompt": brief_for_synapse(question, rows),
         }
 
-    def selected_rows(self, experiment_ids: list[str]) -> list[dict[str, Any]]:
-        return self._selected_rows(experiment_ids)
+    def selected_rows(
+        self, question: str, experiment_ids: list[str]
+    ) -> list[dict[str, Any]]:
+        return self._selected_rows(question, experiment_ids)
 
     def get_evidence(self, evidence_id: str) -> dict[str, object]:
         """Return one evidence record for its source-fragment viewer."""
@@ -51,11 +56,13 @@ class EvidenceService:
                 return row
         raise EvidenceNotFoundError
 
-    def _selected_rows(self, experiment_ids: list[str]) -> list[dict[str, Any]]:
+    def _selected_rows(
+        self, question: str, experiment_ids: list[str]
+    ) -> list[dict[str, Any]]:
         rows = [row for row in self._repository.list() if is_releasable(row)]
         if not experiment_ids:
-            return rows
+            return select_relevant_evidence(question, rows)
         selected = [row for row in rows if row["id"] in set(experiment_ids)]
         if not selected:
-            raise HTTPException(status_code=404, detail="Не найдены выбранные опыты.")
+            raise EvidenceSelectionNotFoundError
         return selected

@@ -11,6 +11,7 @@ DATA_FILE = ROOT / "backend" / "data" / "evidence.json"
 EVIDENCE_REVIEWS_FILE = ROOT / "backend" / "data" / "evidence_reviews.json"
 CONTROL_QUESTIONS_FILE = ROOT / "backend" / "data" / "control_questions.json"
 PUBLIC_SOURCES_FILE = ROOT / "backend" / "data" / "public_sources.json"
+DEFAULT_DOCUMENT_STORE_DIR = ROOT / "backend" / "data" / "documents"
 
 
 class Settings(BaseSettings):
@@ -25,6 +26,46 @@ class Settings(BaseSettings):
     synapse_workflow_id: str = Field(default="", alias="SYNAPSE_WORKFLOW_ID")
     synapse_approval_mode: str = Field(default="human", alias="SYNAPSE_APPROVAL_MODE")
     synapse_timeout: float = Field(default=30.0, alias="SYNAPSE_TIMEOUT")
+    document_store_dir: Path = Field(
+        default=DEFAULT_DOCUMENT_STORE_DIR,
+        alias="DOCUMENT_STORE_DIR",
+    )
+    document_access_token: str = Field(default="", alias="DOCUMENT_ACCESS_TOKEN")
+    document_max_upload_bytes: int = Field(
+        default=20 * 1024 * 1024,
+        gt=0,
+        alias="DOCUMENT_MAX_UPLOAD_BYTES",
+    )
+    document_max_documents: int = Field(
+        default=100,
+        gt=0,
+        alias="DOCUMENT_MAX_DOCUMENTS",
+    )
+    document_max_pages: int = Field(
+        default=200,
+        gt=0,
+        alias="DOCUMENT_MAX_PAGES",
+    )
+    document_max_extracted_chars: int = Field(
+        default=2_000_000,
+        gt=0,
+        alias="DOCUMENT_MAX_EXTRACTED_CHARS",
+    )
+    document_chunk_chars: int = Field(
+        default=1200,
+        ge=100,
+        alias="DOCUMENT_CHUNK_CHARS",
+    )
+    document_chunk_overlap_chars: int = Field(
+        default=150,
+        ge=0,
+        alias="DOCUMENT_CHUNK_OVERLAP_CHARS",
+    )
+    document_max_page_content_bytes: int = Field(
+        default=16 * 1024 * 1024,
+        gt=0,
+        alias="DOCUMENT_MAX_PAGE_CONTENT_BYTES",
+    )
 
     @property
     def synapse_configured(self) -> bool:
