@@ -92,6 +92,14 @@ const DocumentsWorkspace = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isOpeningSource, setIsOpeningSource] = useState(false);
+  const hasSearchOutput = isSearching || Boolean(searchResult);
+  const contentClassNames = [
+    scss.content,
+    activeView === "search" && !hasSearchOutput && scss.searchContent,
+    documentsError && scss.contentWithError,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const loadDocuments = useCallback(async (nextAccessToken?: string) => {
     setIsDocumentsLoading(true);
@@ -420,343 +428,354 @@ const DocumentsWorkspace = () => {
         </button>
       </nav>
 
-      {documentsError && (
-        <section className={scss.errorBanner} role="alert">
-          <p>{documentsError}</p>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => void loadDocuments(accessToken)}
-            disabled={isDocumentsLoading || isUploading}
-          >
-            Повторить
-          </Button>
-        </section>
-      )}
+      <div className={contentClassNames}>
+        {documentsError && (
+          <section className={scss.errorBanner} role="alert">
+            <p>{documentsError}</p>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void loadDocuments(accessToken)}
+              disabled={isDocumentsLoading || isUploading}
+            >
+              Повторить
+            </Button>
+          </section>
+        )}
 
-      {activeView === "documents" ? (
-        <section className={scss.documentsWorkspace} aria-label="Документы">
-          <article className={scss.panel}>
-            <div className={scss.sectionHeading}>
-              <div>
-                <h2>Загрузить документы</h2>
-              </div>
-            </div>
-            <form className={scss.uploadForm} onSubmit={handleUpload}>
-              <Field
-                label="Выберите PDF-файлы"
-                htmlFor="document-upload"
-                hint="Поддерживаются PDF. Можно выбрать несколько файлов. После загрузки их текст будет доступен для поиска."
-                error={uploadError}
-                required
-              >
-                <input
-                  ref={fileInputRef}
-                  id="document-upload"
-                  className={scss.fileInput}
-                  type="file"
-                  accept="application/pdf,.pdf"
-                  multiple
-                  onChange={handleFileChange}
-                  disabled={isUploading || isDocumentsLoading}
-                />
-              </Field>
-              {selectedFiles.length > 0 && (
-                <section
-                  className={scss.selectedFiles}
-                  aria-label="Выбранные PDF-файлы"
-                  aria-live="polite"
-                >
-                  <div className={scss.selectedFilesHeading}>
-                    <strong>Выбрано файлов: {selectedFiles.length}</strong>
-                    {selectedFiles.length > MAX_VISIBLE_SELECTED_FILES && (
-                      <span>Прокрутите, чтобы увидеть все</span>
-                    )}
-                  </div>
-                  <ul className={scss.selectedFilesList}>
-                    {selectedFiles.map((file, index) => (
-                      <li
-                        key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
-                        className={scss.selectedFile}
-                      >
-                        <span className={scss.selectedFileName}>
-                          {file.name}
-                        </span>
-                        <span className={scss.selectedFileSize}>
-                          {formatFileSize(file.size)}
-                        </span>
-                        <button
-                          className={scss.removeSelectedFileButton}
-                          type="button"
-                          onClick={() => handleSelectedFileRemove(index)}
-                          disabled={isUploading}
-                          aria-label={`Убрать файл «${file.name}» из очереди загрузки`}
-                        >
-                          Убрать
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
-              <div className={scss.uploadActions}>
-                <Button
-                  type="submit"
-                  disabled={isUploading || isDocumentsLoading}
-                >
-                  {isUploading
-                    ? "Добавляем файлы…"
-                    : `Загрузить PDF${selectedFiles.length > 1 ? ` (${selectedFiles.length})` : ""}`}
-                </Button>
-              </div>
-              {uploadSuccess && (
-                <p className={scss.successMessage} role="status">
-                  {uploadSuccess}
-                </p>
-              )}
-            </form>
-          </article>
-
-          {documents?.length ? (
-            <aside className={scss.documentsSummary}>
-              <div>
-                <h2>Документы готовы к поиску</h2>
-                <p>
-                  Загружено {formatDocumentCount(documents.length)}. В поиске
-                  можно выбрать нужные файлы и задать вопрос.
-                </p>
-              </div>
-              <Button type="button" onClick={handleSearchViewOpen}>
-                Перейти к поиску
-              </Button>
-            </aside>
-          ) : null}
-        </section>
-      ) : (
-        <section className={scss.searchWorkspace} aria-label="Поиск">
-          {documents?.length ? (
-            <>
-              <article className={scss.panel}>
-                <div className={scss.sectionHeading}>
-                  <div>
-                    <h2>Выберите документы для поиска</h2>
-                  </div>
-                  <div className={scss.selectionActions}>
-                    <span className={scss.count}>
-                      {formatDocumentCount(documents.length)}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={handleDocumentsViewOpen}
-                    >
-                      Добавить документы
-                    </Button>
-                  </div>
+        {activeView === "documents" ? (
+          <section className={scss.documentsWorkspace} aria-label="Документы">
+            <article className={scss.panel}>
+              <div className={scss.sectionHeading}>
+                <div>
+                  <h2>Загрузить документы</h2>
                 </div>
-
-                <fieldset className={scss.documentSelection}>
-                  <legend>
-                    Выбрано {selectedDocumentIds.length} из {documents.length}
-                  </legend>
-                  <p className={scss.muted}>
-                    В поиск попадут отмеченные документы. За один запрос можно
-                    выбрать до {MAX_SELECTED_DOCUMENTS} файлов.
-                  </p>
-                  {selectionError && (
-                    <p className={scss.selectionError} role="alert">
-                      {selectionError}
-                    </p>
-                  )}
-                  <ul className={scss.documentList}>
-                    {documents.map((document) => {
-                      const checkboxId = `document-${document.id}`;
-                      const isSelected = selectedDocumentIds.includes(
-                        document.id,
-                      );
-
-                      return (
-                        <li key={document.id} className={scss.documentItem}>
-                          <input
-                            id={checkboxId}
-                            className={scss.documentCheckbox}
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={(event) =>
-                              handleDocumentSelectionChange(
-                                document.id,
-                                event.target.checked,
-                              )
-                            }
-                          />
-                          <label
-                            className={scss.documentLabel}
-                            htmlFor={checkboxId}
-                          >
-                            <span className={scss.documentTopLine}>
-                              <strong>{document.filename}</strong>
-                              <span className={scss.status}>
-                                {formatDocumentStatus(document.status)}
-                              </span>
-                            </span>
-                            <span className={scss.documentMeta}>
-                              <span>{formatFileSize(document.sizeBytes)}</span>
-                              <span>{document.pageCount} стр.</span>
-                              <span>{document.textPageCount} с текстом</span>
-                              <span>{document.chunkCount} фрагментов</span>
-                            </span>
-                            <span className={scss.documentDate}>
-                              Добавлен: {formatDate(document.uploadedAt)}
-                            </span>
-                          </label>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </fieldset>
-              </article>
-
-              <section className={scss.panel} aria-labelledby="search-question">
-                <div className={scss.sectionHeading}>
-                  <div>
-                    <h2 id="search-question">Задайте вопрос</h2>
-                  </div>
-                </div>
-                <form className={scss.questionForm} onSubmit={handleSearch}>
-                  <Field
-                    label="Что вы хотите найти?"
-                    htmlFor="document-question"
-                    hint="Например: «Какие ПАВ показали устойчивость эмульсии при pH 5–7?»"
-                    error={questionError}
-                    required
+              </div>
+              <form className={scss.uploadForm} onSubmit={handleUpload}>
+                <Field
+                  label="Выберите PDF-файлы"
+                  htmlFor="document-upload"
+                  hint="Поддерживаются PDF. Можно выбрать несколько файлов. После загрузки их текст будет доступен для поиска."
+                  error={uploadError}
+                  required
+                >
+                  <input
+                    ref={fileInputRef}
+                    id="document-upload"
+                    className={scss.fileInput}
+                    type="file"
+                    accept="application/pdf,.pdf"
+                    multiple
+                    onChange={handleFileChange}
+                    disabled={isUploading || isDocumentsLoading}
+                  />
+                </Field>
+                {selectedFiles.length > 0 && (
+                  <section
+                    className={scss.selectedFiles}
+                    aria-label="Выбранные PDF-файлы"
+                    aria-live="polite"
                   >
-                    <Textarea
-                      id="document-question"
-                      value={question}
-                      onChange={(event) => setQuestion(event.target.value)}
-                      placeholder="Сформулируйте вопрос, на который нужно найти подтверждение в документах"
-                      rows={4}
-                      disabled={isSearching}
-                    />
-                  </Field>
-                  {searchError && (
-                    <p className={scss.selectionError} role="alert">
-                      {searchError}
-                    </p>
-                  )}
-                  <div className={scss.questionActions}>
-                    <Button
-                      type="submit"
-                      disabled={isSearching || !selectedDocumentIds.length}
-                    >
-                      {isSearching
-                        ? "Ищем фрагменты…"
-                        : "Найти подтверждающие фрагменты"}
-                    </Button>
-                    <span>
-                      Будет показано до {SEARCH_LIMIT} наиболее релевантных
-                      фрагментов.
-                    </span>
-                  </div>
-                </form>
-              </section>
-            </>
-          ) : (
-            <section className={scss.emptyState} aria-labelledby="search-empty">
-              <h2 id="search-empty">Сначала загрузите документы</h2>
-              <p>
-                Добавьте PDF со статьёй, отчётом или технической документацией,
-                чтобы начать поиск.
-              </p>
-              <Button type="button" onClick={handleDocumentsViewOpen}>
-                Загрузить документы
-              </Button>
-            </section>
-          )}
-        </section>
-      )}
-
-      {activeView === "search" && isSearching && (
-        <section className={scss.searchLoading} aria-live="polite">
-          <Loader
-            variant="inline"
-            label="Ищем фрагменты в выбранных документах…"
-          />
-        </section>
-      )}
-
-      {activeView === "search" && searchResult && !isSearching && (
-        <section className={scss.searchResults} aria-live="polite">
-          <div className={scss.resultsHeading}>
-            <div>
-              <p className={scss.eyebrow}>Кандидаты на доказательства</p>
-              <h2>Фрагменты по вопросу</h2>
-              <p className={scss.muted}>«{searchResult.query}»</p>
-            </div>
-            <span className={scss.count}>
-              {searchResult.total}{" "}
-              {searchResult.total === 1 ? "результат" : "результатов"}
-            </span>
-          </div>
-
-          {searchResult.items.length ? (
-            <ol className={scss.resultList}>
-              {searchResult.items.map((item) => (
-                <li key={item.chunkId} className={scss.resultItem}>
-                  <article>
-                    <div className={scss.citationHeading}>
-                      <div>
-                        <p className={scss.citationDocument}>
-                          {item.documentName}
-                        </p>
-                        <p className={scss.citationLocation}>
-                          {item.citation.location}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        className={scss.sourceLink}
-                        aria-label={`Открыть источник: ${item.citation.document}, ${item.citation.location}`}
-                        onClick={() => void handleOpenSource(item.citation)}
-                        disabled={isOpeningSource}
-                      >
-                        {isOpeningSource ? "Открываем…" : "Открыть источник"}
-                      </button>
+                    <div className={scss.selectedFilesHeading}>
+                      <strong>Выбрано файлов: {selectedFiles.length}</strong>
+                      {selectedFiles.length > MAX_VISIBLE_SELECTED_FILES && (
+                        <span>Прокрутите, чтобы увидеть все</span>
+                      )}
                     </div>
-                    <blockquote>{item.excerpt}</blockquote>
-                    <p className={scss.relevance}>
-                      Соответствие запросу:{" "}
-                      {item.score.toLocaleString("ru-RU", {
-                        maximumFractionDigits: 2,
-                      })}
+                    <ul className={scss.selectedFilesList}>
+                      {selectedFiles.map((file, index) => (
+                        <li
+                          key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
+                          className={scss.selectedFile}
+                        >
+                          <span className={scss.selectedFileName}>
+                            {file.name}
+                          </span>
+                          <span className={scss.selectedFileSize}>
+                            {formatFileSize(file.size)}
+                          </span>
+                          <button
+                            className={scss.removeSelectedFileButton}
+                            type="button"
+                            onClick={() => handleSelectedFileRemove(index)}
+                            disabled={isUploading}
+                            aria-label={`Убрать файл «${file.name}» из очереди загрузки`}
+                          >
+                            Убрать
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+                <div className={scss.uploadActions}>
+                  <Button
+                    type="submit"
+                    disabled={isUploading || isDocumentsLoading}
+                  >
+                    {isUploading
+                      ? "Добавляем файлы…"
+                      : `Загрузить PDF${selectedFiles.length > 1 ? ` (${selectedFiles.length})` : ""}`}
+                  </Button>
+                </div>
+                {uploadSuccess && (
+                  <p className={scss.successMessage} role="status">
+                    {uploadSuccess}
+                  </p>
+                )}
+              </form>
+            </article>
+
+            {documents?.length ? (
+              <aside className={scss.documentsSummary}>
+                <div>
+                  <h2>Документы готовы к поиску</h2>
+                  <p>
+                    Загружено {formatDocumentCount(documents.length)}. В поиске
+                    можно выбрать нужные файлы и задать вопрос.
+                  </p>
+                </div>
+                <Button type="button" onClick={handleSearchViewOpen}>
+                  Перейти к поиску
+                </Button>
+              </aside>
+            ) : null}
+          </section>
+        ) : (
+          <section className={scss.searchWorkspace} aria-label="Поиск">
+            {documents?.length ? (
+              <>
+                <article className={`${scss.panel} ${scss.selectionPanel}`}>
+                  <div className={scss.sectionHeading}>
+                    <div>
+                      <h2>Выберите документы для поиска</h2>
+                    </div>
+                    <div className={scss.selectionActions}>
+                      <span className={scss.count}>
+                        {formatDocumentCount(documents.length)}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleDocumentsViewOpen}
+                      >
+                        Добавить документы
+                      </Button>
+                    </div>
+                  </div>
+
+                  <fieldset className={scss.documentSelection}>
+                    <legend>
+                      Выбрано {selectedDocumentIds.length} из {documents.length}
+                    </legend>
+                    <p className={scss.muted}>
+                      В поиск попадут отмеченные документы. За один запрос можно
+                      выбрать до {MAX_SELECTED_DOCUMENTS} файлов.
                     </p>
-                  </article>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <div className={scss.emptyState}>
-              <h3>Подтверждающих фрагментов не найдено</h3>
-              <p>
-                Попробуйте уточнить термины, условия эксперимента или выбрать
-                другие документы.
-              </p>
+                    {selectionError && (
+                      <p className={scss.selectionError} role="alert">
+                        {selectionError}
+                      </p>
+                    )}
+                    <ul className={scss.documentList}>
+                      {documents.map((document) => {
+                        const checkboxId = `document-${document.id}`;
+                        const isSelected = selectedDocumentIds.includes(
+                          document.id,
+                        );
+
+                        return (
+                          <li key={document.id} className={scss.documentItem}>
+                            <input
+                              id={checkboxId}
+                              className={scss.documentCheckbox}
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={(event) =>
+                                handleDocumentSelectionChange(
+                                  document.id,
+                                  event.target.checked,
+                                )
+                              }
+                            />
+                            <label
+                              className={scss.documentLabel}
+                              htmlFor={checkboxId}
+                            >
+                              <span className={scss.documentTopLine}>
+                                <strong>{document.filename}</strong>
+                                <span className={scss.status}>
+                                  {formatDocumentStatus(document.status)}
+                                </span>
+                              </span>
+                              <span className={scss.documentMeta}>
+                                <span>
+                                  {formatFileSize(document.sizeBytes)}
+                                </span>
+                                <span>{document.pageCount} стр.</span>
+                                <span>{document.textPageCount} с текстом</span>
+                                <span>{document.chunkCount} фрагментов</span>
+                              </span>
+                              <span className={scss.documentDate}>
+                                Добавлен: {formatDate(document.uploadedAt)}
+                              </span>
+                            </label>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </fieldset>
+                </article>
+
+                <section
+                  className={scss.panel}
+                  aria-labelledby="search-question"
+                >
+                  <div className={scss.sectionHeading}>
+                    <div>
+                      <h2 id="search-question">Задайте вопрос</h2>
+                    </div>
+                  </div>
+                  <form className={scss.questionForm} onSubmit={handleSearch}>
+                    <Field
+                      label="Что вы хотите найти?"
+                      htmlFor="document-question"
+                      hint="Например: «Какие ПАВ показали устойчивость эмульсии при pH 5–7?»"
+                      error={questionError}
+                      required
+                    >
+                      <Textarea
+                        id="document-question"
+                        value={question}
+                        onChange={(event) => setQuestion(event.target.value)}
+                        placeholder="Сформулируйте вопрос, на который нужно найти подтверждение в документах"
+                        rows={4}
+                        disabled={isSearching}
+                      />
+                    </Field>
+                    {searchError && (
+                      <p className={scss.selectionError} role="alert">
+                        {searchError}
+                      </p>
+                    )}
+                    <div className={scss.questionActions}>
+                      <Button
+                        type="submit"
+                        disabled={isSearching || !selectedDocumentIds.length}
+                      >
+                        {isSearching
+                          ? "Ищем фрагменты…"
+                          : "Найти подтверждающие фрагменты"}
+                      </Button>
+                      <span>
+                        Будет показано до {SEARCH_LIMIT} наиболее релевантных
+                        фрагментов.
+                      </span>
+                    </div>
+                  </form>
+                </section>
+              </>
+            ) : (
+              <section
+                className={scss.emptyState}
+                aria-labelledby="search-empty"
+              >
+                <h2 id="search-empty">Сначала загрузите документы</h2>
+                <p>
+                  Добавьте PDF со статьёй, отчётом или технической
+                  документацией, чтобы начать поиск.
+                </p>
+                <Button type="button" onClick={handleDocumentsViewOpen}>
+                  Загрузить документы
+                </Button>
+              </section>
+            )}
+          </section>
+        )}
+
+        {activeView === "search" && isSearching && (
+          <section className={scss.searchLoading} aria-live="polite">
+            <Loader
+              variant="inline"
+              label="Ищем фрагменты в выбранных документах…"
+            />
+          </section>
+        )}
+
+        {activeView === "search" && searchResult && !isSearching && (
+          <section className={scss.searchResults} aria-live="polite">
+            <div className={scss.resultsHeading}>
+              <div>
+                <p className={scss.eyebrow}>Кандидаты на доказательства</p>
+                <h2>Фрагменты по вопросу</h2>
+                <p className={scss.muted}>«{searchResult.query}»</p>
+              </div>
+              <span className={scss.count}>
+                {searchResult.total}{" "}
+                {searchResult.total === 1 ? "результат" : "результатов"}
+              </span>
             </div>
-          )}
-          <aside className={scss.retrievalNotice}>
-            <strong>Это этап поиска, а не готовый научный вывод.</strong>
-            <p>
-              Найденные фрагменты нужно сверить с методикой и условиями опыта, а
-              затем подтвердить как факты в <a href="/">доказательной базе</a>.
-            </p>
-          </aside>
-          {sourceError && (
-            <p className={scss.sourceError} role="alert">
-              {sourceError}
-            </p>
-          )}
-        </section>
-      )}
+
+            {searchResult.items.length ? (
+              <ol className={scss.resultList}>
+                {searchResult.items.map((item) => (
+                  <li key={item.chunkId} className={scss.resultItem}>
+                    <article>
+                      <div className={scss.citationHeading}>
+                        <div>
+                          <p className={scss.citationDocument}>
+                            {item.documentName}
+                          </p>
+                          <p className={scss.citationLocation}>
+                            {item.citation.location}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          className={scss.sourceLink}
+                          aria-label={`Открыть источник: ${item.citation.document}, ${item.citation.location}`}
+                          onClick={() => void handleOpenSource(item.citation)}
+                          disabled={isOpeningSource}
+                        >
+                          {isOpeningSource ? "Открываем…" : "Открыть источник"}
+                        </button>
+                      </div>
+                      <blockquote>{item.excerpt}</blockquote>
+                      <p className={scss.relevance}>
+                        Соответствие запросу:{" "}
+                        {item.score.toLocaleString("ru-RU", {
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                    </article>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <div className={scss.emptyState}>
+                <h3>Подтверждающих фрагментов не найдено</h3>
+                <p>
+                  Попробуйте уточнить термины, условия эксперимента или выбрать
+                  другие документы.
+                </p>
+              </div>
+            )}
+            <aside className={scss.retrievalNotice}>
+              <strong>Это этап поиска, а не готовый научный вывод.</strong>
+              <p>
+                Найденные фрагменты нужно сверить с методикой и условиями опыта,
+                а затем подтвердить как факты в{" "}
+                <a href="/">доказательной базе</a>.
+              </p>
+            </aside>
+            {sourceError && (
+              <p className={scss.sourceError} role="alert">
+                {sourceError}
+              </p>
+            )}
+          </section>
+        )}
+      </div>
     </main>
   );
 };
