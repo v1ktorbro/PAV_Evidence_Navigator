@@ -179,16 +179,30 @@ def test_document_token_does_not_guard_non_document_endpoints(token_protected_cl
     ).status_code == 200
 
 
-def test_document_access_code_copy_is_available_only_when_enabled(
+def test_document_access_code_copy_is_unavailable_when_disabled(
     client_with_document_store,
-    access_code_copy_client_with_document_store,
+    monkeypatch,
 ):
+    monkeypatch.setattr(
+        api,
+        "document_config",
+        Settings(
+            DOCUMENT_ACCESS_TOKEN="team-document-token",
+            DOCUMENT_ACCESS_CODE_COPY_ENABLED=False,
+        ),
+    )
+
     unavailable = client_with_document_store.get("/api/documents/access-code/availability")
     assert unavailable.status_code == 200
     assert unavailable.json() == {"available": False}
     assert unavailable.headers["cache-control"] == "no-store"
     assert client_with_document_store.get("/api/documents/access-code").status_code == 404
 
+
+
+def test_document_access_code_copy_is_available_when_enabled(
+    access_code_copy_client_with_document_store,
+):
     available = access_code_copy_client_with_document_store.get(
         "/api/documents/access-code/availability"
     )
