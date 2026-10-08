@@ -9,6 +9,7 @@ services:
       PORT: 8091
       DOCUMENT_STORE_DIR: /service/var/documents
       DOCUMENT_ACCESS_TOKEN: ${DOCUMENT_ACCESS_TOKEN:?DOCUMENT_ACCESS_TOKEN is required}
+      DOCUMENT_ACCESS_CODE_COPY_ENABLED: ${DOCUMENT_ACCESS_CODE_COPY_ENABLED:-false}
     env_file:
       - ./backend.env
     expose:

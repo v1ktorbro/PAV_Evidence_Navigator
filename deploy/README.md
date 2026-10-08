@@ -12,8 +12,11 @@ other path.
    `/opt/pav/backend.env`. Add a long random `DOCUMENT_ACCESS_TOKEN` to
    `/opt/pav/.env`; compose refuses to start the production backend without it.
    Clients use it as `Authorization: Bearer <token>` for every `/api/documents`
-   endpoint. Fill `backend.env` with the production Synapse values if that
-   integration is used.
+   endpoint. For a temporary stand only, set
+   `DOCUMENT_ACCESS_CODE_COPY_ENABLED=true` in `/opt/pav/.env` to show a button
+   that copies this code on the document-access screen. Leave it `false` in
+   production and remove the feature before release. Fill `backend.env` with
+   the production Synapse values if that integration is used.
 3. Append the public half of the dedicated GitHub Actions deploy key to
    `/root/.ssh/authorized_keys`.
 4. Configure the GitHub repository secrets below.

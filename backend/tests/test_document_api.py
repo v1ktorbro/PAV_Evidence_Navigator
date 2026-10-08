@@ -59,6 +59,20 @@ def token_protected_client_with_document_store(monkeypatch, tmp_path):
     return TestClient(app)
 
 
+@pytest.fixture
+def access_code_copy_client_with_document_store(monkeypatch, tmp_path):
+    monkeypatch.setattr(api, "document_service", make_service(tmp_path))
+    monkeypatch.setattr(
+        api,
+        "document_config",
+        Settings(
+            DOCUMENT_ACCESS_TOKEN="team-document-token",
+            DOCUMENT_ACCESS_CODE_COPY_ENABLED=True,
+        ),
+    )
+    return TestClient(app)
+
+
 def test_document_routes_upload_list_search_and_open_source(client_with_document_store):
     response = client_with_document_store.post(
         "/api/documents",
@@ -163,6 +177,29 @@ def test_document_token_does_not_guard_non_document_endpoints(token_protected_cl
         "/api/analysis",
         json={"question": "Что можно сопоставить?", "experiment_ids": ["LAB-001"]},
     ).status_code == 200
+
+
+def test_document_access_code_copy_is_available_only_when_enabled(
+    client_with_document_store,
+    access_code_copy_client_with_document_store,
+):
+    unavailable = client_with_document_store.get("/api/documents/access-code/availability")
+    assert unavailable.status_code == 200
+    assert unavailable.json() == {"available": False}
+    assert unavailable.headers["cache-control"] == "no-store"
+    assert client_with_document_store.get("/api/documents/access-code").status_code == 404
+
+    available = access_code_copy_client_with_document_store.get(
+        "/api/documents/access-code/availability"
+    )
+    assert available.status_code == 200
+    assert available.json() == {"available": True}
+    assert available.headers["cache-control"] == "no-store"
+
+    code = access_code_copy_client_with_document_store.get("/api/documents/access-code")
+    assert code.status_code == 200
+    assert code.json() == {"access_code": "team-document-token"}
+    assert code.headers["cache-control"] == "no-store"
 
 
 def test_document_upload_rejects_oversized_declared_content_length_before_multipart_parsing(

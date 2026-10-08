@@ -5,6 +5,8 @@ import type { ChangeEvent, FormEvent } from "react";
 
 import {
   deleteDocument,
+  getDocumentAccessCode,
+  getDocumentAccessCodeAvailability,
   getDocumentFile,
   getDocuments,
   searchDocuments,
@@ -73,6 +75,28 @@ const formatDocumentCount = (count: number) => {
   return `${count} документов`;
 };
 
+const copyText = async (value: string) => {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const temporaryInput = document.createElement("textarea");
+  temporaryInput.value = value;
+  temporaryInput.setAttribute("readonly", "");
+  temporaryInput.style.position = "fixed";
+  temporaryInput.style.opacity = "0";
+  document.body.append(temporaryInput);
+  temporaryInput.select();
+
+  const isCopied = document.execCommand("copy");
+  temporaryInput.remove();
+
+  if (!isCopied) {
+    throw new Error("Не удалось скопировать код. Скопируйте его вручную.");
+  }
+};
+
 const DocumentsWorkspace = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchResultsRef = useRef<HTMLElement>(null);
@@ -86,6 +110,9 @@ const DocumentsWorkspace = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [activeView, setActiveView] = useState<WorkspaceView>("search");
   const [accessToken, setAccessToken] = useState("");
+  const [canCopyAccessCode, setCanCopyAccessCode] = useState(false);
+  const [isAccessCodeCopying, setIsAccessCodeCopying] = useState(false);
+  const [accessCodeCopyStatus, setAccessCodeCopyStatus] = useState("");
   const [question, setQuestion] = useState("");
   const [searchResult, setSearchResult] = useState<DocumentSearchResponse>();
   const [questionEditorState, setQuestionEditorState] =
@@ -164,6 +191,28 @@ const DocumentsWorkspace = () => {
   useEffect(() => {
     void loadDocuments();
   }, [loadDocuments]);
+
+  useEffect(() => {
+    if (!documentsError || documents) return;
+
+    let isCancelled = false;
+
+    const loadAccessCodeAvailability = async () => {
+      try {
+        const isAvailable = await getDocumentAccessCodeAvailability();
+
+        if (!isCancelled) setCanCopyAccessCode(isAvailable);
+      } catch {
+        if (!isCancelled) setCanCopyAccessCode(false);
+      }
+    };
+
+    void loadAccessCodeAvailability();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [documents, documentsError]);
 
   useEffect(() => {
     if (!searchResult || isSearching || !searchResult.items.length) return;
@@ -401,7 +450,29 @@ const DocumentsWorkspace = () => {
 
   const handleAccessSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setAccessCodeCopyStatus("");
     void loadDocuments(accessToken);
+  };
+
+  const handleAccessCodeCopy = async () => {
+    setAccessCodeCopyStatus("");
+    setIsAccessCodeCopying(true);
+
+    try {
+      const accessCode = await getDocumentAccessCode();
+      await copyText(accessCode);
+      setAccessToken(accessCode);
+      setAccessCodeCopyStatus("Код скопирован. Открываем документы…");
+      await loadDocuments(accessCode);
+    } catch (error) {
+      setAccessCodeCopyStatus(
+        error instanceof Error
+          ? error.message
+          : "Не удалось получить и скопировать код.",
+      );
+    } finally {
+      setIsAccessCodeCopying(false);
+    }
   };
 
   const handleDocumentsViewOpen = () => {
@@ -517,6 +588,24 @@ const DocumentsWorkspace = () => {
             <Field
               label="Код доступа команды"
               htmlFor="document-access-token"
+              action={
+                canCopyAccessCode ? (
+                  <Button
+                    className={scss.copyAccessCodeButton}
+                    type="button"
+                    variant="secondary"
+                    onClick={() => void handleAccessCodeCopy()}
+                    disabled={isDocumentsLoading || isAccessCodeCopying}
+                    aria-describedby="document-access-copy-status"
+                  >
+                    <IconRenderer
+                      className={scss.copyAccessCodeIcon}
+                      icon="copy"
+                    />
+                    {isAccessCodeCopying ? "Копируем…" : "Скопировать код"}
+                  </Button>
+                ) : undefined
+              }
               hint="Нужен только в защищённом развёртывании. Локально поле можно оставить пустым."
             >
               <Input
@@ -527,6 +616,13 @@ const DocumentsWorkspace = () => {
                 autoComplete="off"
               />
             </Field>
+            <p
+              id="document-access-copy-status"
+              className={scss.accessCodeCopyStatus}
+              role="status"
+            >
+              {accessCodeCopyStatus}
+            </p>
             <Button
               type="submit"
               variant="secondary"

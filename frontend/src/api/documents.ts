@@ -40,6 +40,14 @@ interface IApiDocumentSearchResponse {
   total: number;
 }
 
+interface IApiDocumentAccessCodeAvailability {
+  available: boolean;
+}
+
+interface IApiDocumentAccessCode {
+  access_code: string;
+}
+
 const getRequestHeaders = (
   headers: HeadersInit | undefined,
   accessToken?: string,
@@ -147,6 +155,22 @@ export const getDocuments = async (
     accessToken,
   );
   return response.items.map(mapDocument);
+};
+
+export const getDocumentAccessCodeAvailability = async (): Promise<boolean> => {
+  const response = await request<IApiDocumentAccessCodeAvailability>(
+    "/api/documents/access-code/availability",
+    { cache: "no-store" },
+  );
+  return response.available;
+};
+
+export const getDocumentAccessCode = async (): Promise<string> => {
+  const response = await request<IApiDocumentAccessCode>(
+    "/api/documents/access-code",
+    { cache: "no-store" },
+  );
+  return response.access_code;
 };
 
 export const uploadDocument = async (

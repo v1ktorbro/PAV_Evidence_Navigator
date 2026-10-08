@@ -8,6 +8,7 @@ import {
 import ArrowLeftIcon from "./icons/ArrowLeft";
 import ArrowRightIcon from "./icons/ArrowRight";
 import AnalyticsReportIcon from "./icons/AnalyticsReport";
+import CopyIcon from "./icons/Copy";
 import DownloadIcon from "./icons/Download";
 import ExternalLinkIcon from "./icons/ExternalLink";
 import PavLogoIcon from "./icons/PavLogo";
@@ -20,6 +21,7 @@ export type IIconRendererTypes =
   | "analyticsReport"
   | "arrowLeft"
   | "arrowRight"
+  | "copy"
   | "download"
   | "externalLink"
   | "pavLogo"
@@ -35,6 +37,7 @@ export const ICONS_ENUM: Record<
   analyticsReport: AnalyticsReportIcon,
   arrowLeft: ArrowLeftIcon,
   arrowRight: ArrowRightIcon,
+  copy: CopyIcon,
   download: DownloadIcon,
   externalLink: ExternalLinkIcon,
   pavLogo: PavLogoIcon,

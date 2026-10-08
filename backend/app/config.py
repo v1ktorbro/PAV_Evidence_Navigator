@@ -31,6 +31,10 @@ class Settings(BaseSettings):
         alias="DOCUMENT_STORE_DIR",
     )
     document_access_token: str = Field(default="", alias="DOCUMENT_ACCESS_TOKEN")
+    document_access_code_copy_enabled: bool = Field(
+        default=False,
+        alias="DOCUMENT_ACCESS_CODE_COPY_ENABLED",
+    )
     document_max_upload_bytes: int = Field(
         default=20 * 1024 * 1024,
         gt=0,

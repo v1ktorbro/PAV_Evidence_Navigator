@@ -3,7 +3,7 @@ from __future__ import annotations
 from secrets import compare_digest
 from typing import Any
 
-from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Response, UploadFile, status
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
@@ -93,6 +93,13 @@ def require_document_access_token(authorization: str | None = Header(default=Non
         )
 
 
+def document_access_code_copy_is_available() -> bool:
+    return bool(
+        document_config.document_access_code_copy_enabled
+        and document_config.document_access_token
+    )
+
+
 def document_upload_content_length_exceeds_limit(content_length: str | None) -> bool:
     """Quickly reject known oversized uploads before FastAPI parses multipart data."""
     if content_length is None:
@@ -152,6 +159,27 @@ class DocumentSearchBody(BaseModel):
     query: str = Field(min_length=2, max_length=1200)
     document_ids: list[str] = Field(default_factory=list, max_length=50)
     limit: int = Field(default=10, ge=1, le=20)
+
+
+@router.get("/documents/access-code/availability")
+def document_access_code_availability(response: Response) -> dict[str, bool]:
+    """Expose whether the temporary stand-only copy action is available."""
+    response.headers["Cache-Control"] = "no-store"
+    return {"available": document_access_code_copy_is_available()}
+
+
+@router.get("/documents/access-code")
+def document_access_code(response: Response) -> dict[str, str]:
+    """Return the shared document code only while the temporary stand feature is enabled."""
+    if not document_access_code_copy_is_available():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Временная выдача кода доступа отключена.",
+            headers={"Cache-Control": "no-store"},
+        )
+
+    response.headers["Cache-Control"] = "no-store"
+    return {"access_code": document_config.document_access_token}
 
 
 def synapse_service() -> SynapseService:
