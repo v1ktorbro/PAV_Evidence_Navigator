@@ -2,7 +2,7 @@ name: pav-evidence-navigator
 
 services:
   backend:
-    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER is required}/pav-evidence-navigator-backend:${IMAGE_TAG:?IMAGE_TAG is required}
+    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER is required}/synapse-research-backend:${IMAGE_TAG:?IMAGE_TAG is required}
     restart: unless-stopped
     environment:
       HOST: 0.0.0.0
@@ -11,7 +11,7 @@ services:
       DOCUMENT_ACCESS_TOKEN: ${DOCUMENT_ACCESS_TOKEN:?DOCUMENT_ACCESS_TOKEN is required}
       DOCUMENT_ACCESS_CODE_COPY_ENABLED: ${DOCUMENT_ACCESS_CODE_COPY_ENABLED:-false}
     env_file:
-      - ./backend.env
+      - ./.env
     expose:
       - "8091"
     healthcheck:
@@ -30,7 +30,7 @@ services:
       - document_store:/service/var/documents
 
   frontend:
-    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER is required}/pav-evidence-navigator-frontend:${IMAGE_TAG:?IMAGE_TAG is required}
+    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER is required}/synapse-research-frontend:${IMAGE_TAG:?IMAGE_TAG is required}
     restart: unless-stopped
     expose:
       - "80"

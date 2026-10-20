@@ -3,7 +3,7 @@ name: pav-evidence-navigator
 services:
   backend:
     build: .
-    image: pav-evidence-navigator:0.1
+    image: synapse-research:dev
     container_name: pav-evidence-navigator
     ports:
       - "${PAV_PORT:-8091}:8091"

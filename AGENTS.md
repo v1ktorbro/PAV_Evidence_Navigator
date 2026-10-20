@@ -1,4 +1,6 @@
-# PAV Evidence Navigator
+# Synapse Research
+
+Canonical repository: [v1ktorbro/PAV_Evidence_Navigator](https://github.com/v1ktorbro/PAV_Evidence_Navigator). Keep `origin` pointed at this repository.
 
 Repository contains two independently runnable applications.
 
